@@ -9,6 +9,7 @@ interface StatCardProps {
   icon?: React.ElementType;
   className?: string;
   variant?: "default" | "primary" | "dark";
+  onClick?: () => void;
 }
 
 export function StatCard({ 
@@ -18,7 +19,8 @@ export function StatCard({
   trendUp, 
   icon: Icon = TrendingUp, 
   className,
-  variant = "default"
+  variant = "default",
+  onClick
 }: StatCardProps) {
   
   const isPrimary = variant === "primary";
@@ -27,11 +29,12 @@ export function StatCard({
   return (
     <div className={cn(
       "rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden",
+      onClick && "cursor-pointer",
       isPrimary ? "bg-primary text-primary-foreground shadow-xl shadow-primary/25" :
       isDark ? "bg-gray-900 text-white shadow-xl" :
       "bg-card border border-border/50 shadow-lg shadow-black/5 hover:shadow-xl",
       className
-    )}>
+    )} onClick={onClick}>
       {/* Background decoration */}
       {isPrimary && (
         <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
