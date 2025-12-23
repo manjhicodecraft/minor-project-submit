@@ -11,6 +11,7 @@ import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Loans from "@/pages/Loans";
 import Settings from "@/pages/Settings";
+import Cards from "@/pages/Cards";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -45,7 +46,7 @@ function Router() {
       {/* Placeholders for other nav items for now */}
       <Route path="/cards">
         <ProtectedRoute>
-          <Dashboard />
+          <Cards />
         </ProtectedRoute>
       </Route>
       <Route path="/analytics">
