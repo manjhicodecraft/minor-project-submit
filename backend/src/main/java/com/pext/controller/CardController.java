@@ -2,7 +2,9 @@ package com.pext.controller;
 
 import com.pext.dto.CardDTO;
 import com.pext.model.Card;
+import com.pext.model.Transaction;
 import com.pext.repository.CardRepository;
+import com.pext.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,12 @@ public class CardController {
     
     @Autowired
     private CardRepository cardRepository;
+    
+    @Autowired
+    private TransactionRepository transactionRepository;
+    
+    @Autowired
+    private com.pext.repository.AccountRepository accountRepository;
     
     @GetMapping
     public ResponseEntity<List<CardDTO>> getCards(@RequestParam(required = false) Long userId) {
@@ -97,6 +105,42 @@ public class CardController {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("message", "Failed to create card: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+    
+    @GetMapping("/{cardId}/transactions")
+    public ResponseEntity<List<Transaction>> getCardTransactions(@PathVariable Long cardId) {
+        try {
+            // Find the card by ID
+            Card card = cardRepository.findById(cardId).orElse(null);
+            if (card == null) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "Card not found");
+                return ResponseEntity.status(404).body(new ArrayList<>());
+            }
+            
+            // Since cards don't directly link to accounts in the current model, we'll return transactions
+            // for all accounts of the user. In a real implementation, you might want to create a proper
+            // relationship between cards and accounts.
+            // For now, we'll return transactions for all accounts owned by the same user
+            List<com.pext.model.Account> userAccounts = accountRepository.findByUserId(card.getUserId());
+            
+            // Extract account IDs
+            List<Long> accountIds = userAccounts.stream()
+                .map(com.pext.model.Account::getId)
+                .collect(Collectors.toList());
+            
+            // Get transactions for these accounts
+            List<Transaction> transactions = new ArrayList<>();
+            if (!accountIds.isEmpty()) {
+                transactions = transactionRepository.findByAccountIdIn(accountIds);
+            }
+            
+            return ResponseEntity.ok(transactions);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Failed to fetch card transactions: " + e.getMessage());
+            return ResponseEntity.status(500).body(new ArrayList<>());
         }
     }
     

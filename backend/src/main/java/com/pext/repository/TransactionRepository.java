@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByAccountId(Long accountId);
+    List<Transaction> findByAccountIdIn(List<Long> accountIds);
 }

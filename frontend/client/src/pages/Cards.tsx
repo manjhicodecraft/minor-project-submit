@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Navbar, MobileNav } from '@/components/layout/Navbar';
 import { CardForm } from '@/components/dashboard/CardForm';
 import { CardDisplay } from '@/components/dashboard/CardDisplay';
+import { CardDetailsModal } from '@/components/dashboard/CardDetailsModal';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiGet, apiPost } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiDelete } from '@/lib/api';
+import { Transaction } from '@shared/schema';
 
 // Define the Card type
 interface Card {
@@ -22,20 +24,56 @@ export default function Cards() {
   // State to track if we're currently adding a card
   const [isAddingCard, setIsAddingCard] = useState(false);
   
+  // State for card details modal
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   const { user: authUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   // Fetch cards from API
-  const { data: cards = [], isLoading, error } = useQuery({
+  const { data: cards = [], isLoading: cardsLoading, error } = useQuery({
     queryKey: ['cards', authUser?.id],
     queryFn: async () => {
       if (!authUser?.id) return [];
-      const response = await apiGet(`/api/cards?userId=${authUser.id}`);
+      const response: Card[] = await apiGet(`/api/cards?userId=${authUser.id}`);
       return response;
     },
     enabled: !!authUser?.id
   });
+  
+  // Fetch transactions for selected card
+  const {
+    data: cardTransactions = [],
+    isLoading: transactionsLoading,
+    refetch: refetchTransactions
+  } = useQuery({
+    queryKey: ['cardTransactions', selectedCard?.id],
+    queryFn: async () => {
+      if (!selectedCard?.id) return [];
+      const response: Transaction[] = await apiGet(`/api/cards/${selectedCard.id}/transactions`);
+      return response;
+    },
+    enabled: false // Only fetch when modal is opened
+  });
+  
+  // Function to handle card click
+  const handleCardClick = async (card: Card) => {
+    setSelectedCard(card);
+    setIsModalOpen(true);
+    
+    // Fetch transactions for the selected card
+    try {
+      await refetchTransactions();
+    } catch (error) {
+      toast({
+        title: "Error fetching transactions",
+        description: "Failed to load transactions for this card. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   
   // Mutation for adding a card
   const addCardMutation = useMutation({
@@ -50,9 +88,9 @@ export default function Cards() {
       };
       
       const response = await apiPost('/api/cards', cardWithUserId);
-      return response;
+      return response as Card;
     },
-    onSuccess: (newCard) => {
+    onSuccess: (newCard: Card) => {
       // Invalidate and refetch cards
       queryClient.invalidateQueries({ queryKey: ['cards', authUser?.id] });
       
@@ -148,7 +186,7 @@ export default function Cards() {
             </span>
           </div>
           
-          {isLoading ? (
+          {cardsLoading ? (
             <div className="bg-card p-12 rounded-2xl border border-border/50 text-center">
               <p className="text-muted-foreground">Loading cards...</p>
             </div>
@@ -156,6 +194,7 @@ export default function Cards() {
             <CardDisplay 
               cards={cards} 
               onDeleteCard={handleDeleteCard} 
+              onCardClick={handleCardClick}
             />
           ) : (
             <div className="bg-card p-12 rounded-2xl border border-border/50 text-center">
@@ -175,6 +214,15 @@ export default function Cards() {
       </main>
 
       <MobileNav />
+      
+      {/* Card Details Modal */}
+      <CardDetailsModal
+        card={selectedCard}
+        transactions={cardTransactions}
+        isOpen={isModalOpen}
+        isLoading={transactionsLoading}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

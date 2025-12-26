@@ -15,15 +15,17 @@ interface Card {
 interface CardDisplayProps {
   cards: Card[];
   onDeleteCard: (id: number) => void;
+  onCardClick?: (card: Card) => void; // New prop for card click
 }
 
-export function CardDisplay({ cards, onDeleteCard }: CardDisplayProps) {
+export function CardDisplay({ cards, onDeleteCard, onCardClick }: CardDisplayProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {cards.map((card) => (
         <div 
           key={card.id} 
           className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-all group cursor-pointer relative overflow-hidden"
+          onClick={() => onCardClick && onCardClick(card)}
         >
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
