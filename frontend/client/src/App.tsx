@@ -14,6 +14,7 @@ import Loans from "@/pages/Loans";
 import Settings from "@/pages/Settings";
 import Cards from "@/pages/Cards";
 import Profile from "@/pages/Profile";
+import CashExpenses from "@/pages/CashExpenses";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -54,6 +55,11 @@ function Router() {
       <Route path="/analytics">
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/cash-expenses">
+        <ProtectedRoute>
+          <CashExpenses />
         </ProtectedRoute>
       </Route>
       <Route path="/settings">

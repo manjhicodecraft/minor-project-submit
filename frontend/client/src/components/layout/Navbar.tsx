@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, CreditCard, Settings, PieChart, LogOut, Wallet, User } from "lucide-react";
+import { LayoutDashboard, CreditCard, Settings, PieChart, LogOut, Wallet, User, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
@@ -9,6 +9,7 @@ export function Navbar() {
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: CreditCard, label: "My Cards", href: "/cards" },
+    { icon: Coins, label: "Cash Expenses", href: "/cash-expenses" },
     { icon: PieChart, label: "Analytics", href: "/analytics" },
     { icon: Wallet, label: "Loans", href: "/loans" },
     { icon: Settings, label: "Settings", href: "/settings" },
@@ -58,6 +59,7 @@ export function MobileNav() {
   const navItems = [
     { icon: LayoutDashboard, label: "Home", href: "/dashboard" },
     { icon: CreditCard, label: "Cards", href: "/cards" },
+    { icon: Coins, label: "Cash", href: "/cash-expenses" },
     { icon: PieChart, label: "Stats", href: "/analytics" },
     { icon: Wallet, label: "Loans", href: "/loans" },
   ];
