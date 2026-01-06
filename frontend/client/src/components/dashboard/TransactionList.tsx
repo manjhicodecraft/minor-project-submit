@@ -1,6 +1,6 @@
 import { format } from "date-fns";
-import { type Transaction } from "@shared/schema";
-import { ShoppingBag, Coffee, Home, Car, Utensils, Zap, MoreHorizontal } from "lucide-react";
+import { type Transaction, type CashExpense } from "@shared/schema";
+import { ShoppingBag, Coffee, Home, Car, Utensils, Zap, MoreHorizontal, Coins, Wallet } from "lucide-react";
 import { ButtonCustom } from "@/components/ui/button-custom";
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -13,7 +13,7 @@ const categoryIcons: Record<string, React.ElementType> = {
 };
 
 interface TransactionListProps {
-  transactions: Transaction[];
+  transactions: (Transaction | CashExpense)[];
   limit?: number;
 }
 
@@ -31,8 +31,13 @@ export function TransactionList({ transactions, limit }: TransactionListProps) {
   return (
     <div className="space-y-4">
       {displayTransactions.map((tx) => {
-        const Icon = categoryIcons[tx.category || ""] || ShoppingBag;
-        const isCredit = tx.type === "credit";
+        // Determine if this is a CashExpense or regular Transaction
+        const isCashExpense = 'isOffline' in tx && tx.isOffline === true;
+        const Icon = categoryIcons[tx.category || ""] || (isCashExpense ? Wallet : ShoppingBag);
+        
+        // Handle type property for regular transactions vs cash expenses
+        const isCredit = !isCashExpense && (tx as Transaction).type === "credit";
+        const transactionType = isCashExpense ? "offline" : (tx as Transaction).type;
         
         return (
           <div 
@@ -50,15 +55,20 @@ export function TransactionList({ transactions, limit }: TransactionListProps) {
                 <p className="text-sm text-muted-foreground">
                   {tx.date ? format(new Date(tx.date), "MMM d, yyyy • h:mm a") : "Date N/A"}
                 </p>
+                {isCashExpense && (
+                  <span className="text-xs text-muted-foreground bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full inline-block mt-1">
+                    Cash Expense
+                  </span>
+                )}
               </div>
             </div>
 
             <div className="text-right">
               <span className={`block font-display font-bold text-lg ${isCredit ? 'text-green-600' : 'text-foreground'}`}>
-                {isCredit ? "+" : "-"}${Number(tx.amount).toLocaleString()}
+                {!isCashExpense && (tx as Transaction).type === "credit" ? "+" : "-"}${Number(tx.amount).toLocaleString()}
               </span>
               <span className="text-xs text-muted-foreground capitalize bg-secondary px-2 py-0.5 rounded-full inline-block mt-1">
-                {tx.type}
+                {transactionType}
               </span>
             </div>
           </div>

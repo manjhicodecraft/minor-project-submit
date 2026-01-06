@@ -140,6 +140,17 @@ export type Card = {
   duePayments?: number;
 };
 
+// Cash Expense type for offline transactions
+export type CashExpense = {
+  id: string; // Using string ID for offline expenses
+  amount: string;
+  category: string;
+  description?: string | null;
+  date: Date;
+  currency: string;
+  isOffline: true; // Flag to distinguish from regular transactions
+};
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertAccount = z.infer<typeof insertAccountSchema>;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;

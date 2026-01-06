@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { ButtonCustom } from "@/components/ui/button-custom";
 import { Search, Plus, Bell, Filter, CreditCard, ChevronDown, User } from "lucide-react";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
+import { CashExpenseForm } from "@/components/dashboard/CashExpenseForm";
+import { getCashExpenses } from "@/lib/cashExpenses";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   AreaChart, 
   Area, 
@@ -28,7 +31,6 @@ import { insertAccountSchema } from "@shared/schema";
 import { api } from "@shared/routes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/contexts/AuthContext";
 import { apiGet } from "@/lib/api";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
@@ -118,6 +120,15 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [showBankBalances, setShowBankBalances] = useState(false);
+  const [showCashExpenseModal, setShowCashExpenseModal] = useState(false);
+
+  // Get cash expenses from localStorage
+  const cashExpenses = useMemo(() => {
+    if (authUser?.id) {
+      return getCashExpenses(authUser.id);
+    }
+    return [];
+  }, [authUser?.id]);
 
   // Fetch transactions for all accounts or selected account
   const { data: allTransactions = [] } = useQuery({
@@ -149,15 +160,20 @@ export default function Dashboard() {
     enabled: !!accounts && accounts.length > 0,
   });
 
+  // Combine regular transactions with cash expenses
+  const allTransactionsWithCash = useMemo(() => {
+    return [...allTransactions, ...cashExpenses];
+  }, [allTransactions, cashExpenses]);
+
   // Memoize calculations that depend on transactions
-  const expenseData = useMemo(() => calculateWeeklySpending(allTransactions), [allTransactions]);
-  const categoryData = useMemo(() => calculateCategorySpending(allTransactions, accounts || []), [allTransactions, accounts]);
+  const expenseData = useMemo(() => calculateWeeklySpending(allTransactionsWithCash), [allTransactionsWithCash]);
+  const categoryData = useMemo(() => calculateCategorySpending(allTransactionsWithCash, accounts || []), [allTransactionsWithCash, accounts]);
   
   // Calculate monthly spend (debits)
   const monthlySpend = useMemo(() => 
-    allTransactions.filter(t => t.type === 'debit')
+    allTransactionsWithCash.filter(t => 'type' in t ? t.type === 'debit' : true) // Cash expenses are considered as debits
       .reduce((sum, t) => sum + Number(t.amount), 0) || 0,
-    [allTransactions]
+    [allTransactionsWithCash]
   );
     
   // Get the first saving goal for display
@@ -307,6 +323,15 @@ export default function Dashboard() {
                 </select>
               )}
               
+              <ButtonCustom 
+                variant="outline" 
+                size="icon" 
+                className="rounded-xl"
+                onClick={() => setShowCashExpenseModal(true)}
+                title="Add Cash Expense"
+              >
+                <Plus className="w-5 h-5" />
+              </ButtonCustom>
               <ButtonCustom variant="outline" size="icon" className="rounded-xl">
                 <Bell className="w-5 h-5" />
               </ButtonCustom>
@@ -490,7 +515,7 @@ export default function Dashboard() {
                     <ButtonCustom variant="link" size="sm" className="h-auto p-0">View All</ButtonCustom>
                  </div>
                  <div className="bg-card rounded-3xl p-2 shadow-sm border border-border/50">
-                    <TransactionList transactions={allTransactions} limit={5} />
+                    <TransactionList transactions={allTransactionsWithCash} limit={5} />
                  </div>
               </div>
             </div>
@@ -506,6 +531,19 @@ export default function Dashboard() {
         onOpenChange={setShowBankBalances}
         bankBalances={bankBalances}
       />
+      
+      {/* Cash Expense Modal */}
+      <Dialog open={showCashExpenseModal} onOpenChange={setShowCashExpenseModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Cash Expense</DialogTitle>
+          </DialogHeader>
+          <CashExpenseForm 
+            onSubmitSuccess={() => setShowCashExpenseModal(false)}
+            onCancel={() => setShowCashExpenseModal(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
