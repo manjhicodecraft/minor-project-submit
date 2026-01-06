@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { LayoutDashboard, CreditCard, Settings, PieChart, LogOut, Wallet, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -76,6 +77,9 @@ export function MobileNav() {
             </Link>
           );
         })}
+        <div className="p-2">
+          <ThemeToggle />
+        </div>
       </nav>
     </div>
   );

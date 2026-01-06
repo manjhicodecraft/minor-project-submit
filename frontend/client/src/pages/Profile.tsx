@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiPost, apiPut } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { Camera, User, Mail, Phone } from "lucide-react";
+import { Camera, User, Mail, Phone, Bell } from "lucide-react";
 import { api } from "@shared/routes";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 
 export default function Profile() {
   const { user, loading } = useAuth();
@@ -29,8 +31,21 @@ export default function Profile() {
     return (
       <div className="min-h-screen bg-background text-foreground flex">
         <Navbar />
-        <main className="flex-1 lg:ml-64 p-4 lg:p-8 max-w-[1600px] mx-auto w-full flex items-center justify-center">
-          <p>Loading profile...</p>
+        <main className="flex-1 lg:ml-64 p-4 lg:p-8 max-w-[1600px] mx-auto w-full">
+          <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-display font-bold">Profile</h1>
+              <p className="text-muted-foreground">Manage your personal information</p>
+            </div>
+            <div className="flex items-center justify-end">
+              <div className="hidden md:block">
+                <ThemeToggle />
+              </div>
+            </div>
+          </header>
+          <div className="flex items-center justify-center h-full">
+            <p>Loading profile...</p>
+          </div>
         </main>
         <MobileNav />
       </div>
@@ -41,8 +56,21 @@ export default function Profile() {
     return (
       <div className="min-h-screen bg-background text-foreground flex">
         <Navbar />
-        <main className="flex-1 lg:ml-64 p-4 lg:p-8 max-w-[1600px] mx-auto w-full flex items-center justify-center">
-          <p>Please log in to view your profile.</p>
+        <main className="flex-1 lg:ml-64 p-4 lg:p-8 max-w-[1600px] mx-auto w-full">
+          <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-display font-bold">Profile</h1>
+              <p className="text-muted-foreground">Manage your personal information</p>
+            </div>
+            <div className="flex items-center justify-end">
+              <div className="hidden md:block">
+                <ThemeToggle />
+              </div>
+            </div>
+          </header>
+          <div className="flex items-center justify-center h-full">
+            <p>Please log in to view your profile.</p>
+          </div>
         </main>
         <MobileNav />
       </div>
@@ -122,9 +150,24 @@ export default function Profile() {
       <Navbar />
       
       <main className="flex-1 lg:ml-64 p-4 lg:p-8 max-w-[1600px] mx-auto w-full">
-        <header className="mb-8">
-          <h1 className="text-3xl font-display font-bold">Profile</h1>
-          <p className="text-muted-foreground">Manage your personal information</p>
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-bold">Profile</h1>
+            <p className="text-muted-foreground">Manage your personal information</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <ButtonCustom variant="outline" size="icon" className="rounded-xl">
+              <Bell className="w-5 h-5" />
+            </ButtonCustom>
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <ProfileDropdown>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center font-bold cursor-pointer">
+                {user?.fullName?.[0] || "U"}
+              </div>
+            </ProfileDropdown>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

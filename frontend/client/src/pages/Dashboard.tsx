@@ -30,6 +30,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet } from "@/lib/api";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 // Calculate weekly spending from transactions
 const calculateWeeklySpending = (transactions: any[]) => {
@@ -309,6 +310,9 @@ export default function Dashboard() {
               <ButtonCustom variant="outline" size="icon" className="rounded-xl">
                 <Bell className="w-5 h-5" />
               </ButtonCustom>
+              <div className="hidden md:block">
+                <ThemeToggle />
+              </div>
               <ProfileDropdown>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center font-bold cursor-pointer">
                   {user?.fullName?.[0] || "U"}

@@ -9,6 +9,10 @@ import { apiGet, apiPost } from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiDelete } from '@/lib/api';
 import { Transaction } from '@shared/schema';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import { ButtonCustom } from '@/components/ui/button-custom';
+import { Bell } from 'lucide-react';
+import { ProfileDropdown } from '@/components/dashboard/ProfileDropdown';
 
 // Define the Card type
 interface Card {
@@ -153,9 +157,24 @@ export default function Cards() {
       <Navbar />
       
       <main className="flex-1 lg:ml-64 p-4 lg:p-8 pb-24 lg:pb-8 max-w-[1600px] mx-auto w-full">
-        <header className="mb-8">
-          <h1 className="text-3xl font-display font-bold">Card Management</h1>
-          <p className="text-muted-foreground">Manage your cards in one place</p>
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-bold">Card Management</h1>
+            <p className="text-muted-foreground">Manage your cards in one place</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <ButtonCustom variant="outline" size="icon" className="rounded-xl">
+              <Bell className="w-5 h-5" />
+            </ButtonCustom>
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <ProfileDropdown>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center font-bold cursor-pointer">
+                {authUser?.fullName?.[0] || "U"}
+              </div>
+            </ProfileDropdown>
+          </div>
         </header>
 
         {/* Add Cards Section */}

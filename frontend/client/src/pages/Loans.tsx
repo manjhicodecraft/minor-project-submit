@@ -2,9 +2,11 @@ import { Navbar, MobileNav } from "@/components/layout/Navbar";
 import { ButtonCustom } from "@/components/ui/button-custom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, Calendar, AlertCircle } from "lucide-react";
+import { Wallet, Calendar, AlertCircle, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoans } from "@/hooks/use-finance";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 
 export default function Loans() {
   const { user: authUser } = useAuth();
@@ -22,6 +24,25 @@ export default function Loans() {
       <div className="min-h-screen bg-background text-foreground flex">
         <Navbar />
         <main className="flex-1 lg:ml-64 p-4 lg:p-8 pb-24 lg:pb-8 max-w-[1200px] mx-auto w-full">
+          <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-display font-bold">Loans & Liabilities</h1>
+              <p className="text-muted-foreground">Track your repayment progress and upcoming EMIs.</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <ButtonCustom variant="outline" size="icon" className="rounded-xl">
+                <Bell className="w-5 h-5" />
+              </ButtonCustom>
+              <div className="hidden md:block">
+                <ThemeToggle />
+              </div>
+              <ProfileDropdown>
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center font-bold cursor-pointer">
+                  {authUser?.fullName?.[0] || "U"}
+                </div>
+              </ProfileDropdown>
+            </div>
+          </header>
           <div className="flex justify-center items-center h-full">
             <p>Loading loans data...</p>
           </div>
@@ -36,9 +57,24 @@ export default function Loans() {
       <Navbar />
       
       <main className="flex-1 lg:ml-64 p-4 lg:p-8 pb-24 lg:pb-8 max-w-[1200px] mx-auto w-full">
-        <header className="mb-8">
-          <h1 className="text-3xl font-display font-bold">Loans & Liabilities</h1>
-          <p className="text-muted-foreground">Track your repayment progress and upcoming EMIs.</p>
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-bold">Loans & Liabilities</h1>
+            <p className="text-muted-foreground">Track your repayment progress and upcoming EMIs.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <ButtonCustom variant="outline" size="icon" className="rounded-xl">
+              <Bell className="w-5 h-5" />
+            </ButtonCustom>
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <ProfileDropdown>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center font-bold cursor-pointer">
+                {authUser?.fullName?.[0] || "U"}
+              </div>
+            </ProfileDropdown>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

@@ -6,6 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import { Bell } from "lucide-react";
+import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -25,10 +28,23 @@ export default function Settings() {
       <Navbar />
       
       <main className="flex-1 lg:ml-64 p-4 lg:p-8 max-w-[1600px] mx-auto w-full">
-        <header className="mb-8">
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-display font-bold">Settings</h1>
             <p className="text-muted-foreground">Manage your account preferences</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <ButtonCustom variant="outline" size="icon" className="rounded-xl">
+              <Bell className="w-5 h-5" />
+            </ButtonCustom>
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <ProfileDropdown>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center font-bold cursor-pointer">
+                {user?.fullName?.[0] || "U"}
+              </div>
+            </ProfileDropdown>
           </div>
         </header>
 
