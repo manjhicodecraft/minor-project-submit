@@ -4,6 +4,7 @@ import { ButtonCustom } from "@/components/ui/button-custom";
 import { format, startOfMonth, endOfMonth, isSameMonth, isToday, isThisMonth } from "date-fns";
 import { TransactionList } from "./TransactionList";
 import { Transaction, CashExpense } from "@shared/schema";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface MonthlyExpensesModalProps {
   open: boolean;
@@ -42,6 +43,28 @@ export function MonthlyExpensesModal({
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Sort by date descending
   }, [transactions]);
 
+  // Separate online and cash expenses
+  const { onlineExpenses, cashExpenses } = useMemo(() => {
+    const online = monthlyExpenses.filter(expense => 
+      'type' in expense && expense.type === 'debit'
+    );
+    
+    const cash = monthlyExpenses.filter(expense => 
+      'isOffline' in expense && expense.isOffline === true
+    );
+    
+    return { onlineExpenses: online, cashExpenses: cash };
+  }, [monthlyExpenses]);
+
+  // Calculate totals for each category
+  const onlineTotal = useMemo(() => {
+    return onlineExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+  }, [onlineExpenses]);
+
+  const cashTotal = useMemo(() => {
+    return cashExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+  }, [cashExpenses]);
+
   // Group expenses by date
   const expensesByDate = useMemo(() => {
     const grouped: Record<string, (Transaction | CashExpense)[]> = {};
@@ -72,14 +95,25 @@ export function MonthlyExpensesModal({
     return monthlyExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
   }, [monthlyExpenses]);
 
+  // Prepare data for the chart
+  const chartData = [
+    { name: 'Online', value: onlineTotal },
+    { name: 'Cash', value: cashTotal },
+  ];
+
+  // Navy blue color palette
+  const navyBlue = '#1e3a8a';
+  const navyBlueLight = '#314b9e';
+  const navyBlueDark = '#0f1e42';
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between">
           <div>
-            <DialogTitle>Monthly Expenses</DialogTitle>
+            <DialogTitle>Monthly Expenses Breakdown</DialogTitle>
             <p className="text-sm text-muted-foreground">
-              {expensesByDate.length} days with expenses • Total: ${totalMonthlyExpenses.toFixed(2)}
+              Total: ${totalMonthlyExpenses.toFixed(2)} • {expensesByDate.length} days with expenses
             </p>
           </div>
           <ButtonCustom variant="outline" size="icon" onClick={onClose}>
@@ -90,34 +124,56 @@ export function MonthlyExpensesModal({
           </ButtonCustom>
         </DialogHeader>
         
-        <div className="overflow-y-auto flex-grow mt-2">
-          {expensesByDate.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p>No expenses recorded this month</p>
-              <p className="text-sm mt-2">Start adding transactions to see your daily spending</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {expensesByDate.map(({ date, dayName, isToday, expenses }) => (
-                <div key={date} className="border-b border-border pb-6 last:border-0 last:pb-0">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg">
-                        {format(new Date(date), 'MMMM d, yyyy')}
-                      </h3>
-                      {isToday && (
-                        <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                          Today
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-sm font-medium">
-                      {dayName}
-                    </span>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {expenses.map((expense, index) => (
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-card p-4 rounded-xl border border-border/50">
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Online Expenses</h3>
+            <p className="text-2xl font-bold" style={{ color: navyBlue }}>${onlineTotal.toFixed(2)}</p>
+          </div>
+          <div className="bg-card p-4 rounded-xl border border-border/50">
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Cash Expenses</h3>
+            <p className="text-2xl font-bold" style={{ color: navyBlue }}>${cashTotal.toFixed(2)}</p>
+          </div>
+          <div className="bg-card p-4 rounded-xl border border-border/50">
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Monthly</h3>
+            <p className="text-2xl font-bold" style={{ color: navyBlue }}>${totalMonthlyExpenses.toFixed(2)}</p>
+          </div>
+        </div>
+        
+        {/* Chart Visualization */}
+        <div className="h-48 mb-6">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
+              <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `$${value}`} />
+              <Tooltip 
+                contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                itemStyle={{ color: 'hsl(var(--foreground))' }}
+                formatter={(value) => [`$${value}`, 'Amount']}
+              />
+              <Bar dataKey="value" name="Amount">
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={index === 0 ? navyBlue : navyBlueLight} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        
+        <div className="overflow-y-auto flex-grow">
+          <div className="space-y-6">
+            {/* Online Expenses Section */}
+            {onlineExpenses.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center" style={{ color: navyBlue }}>
+                  <span className="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                  Online Expenses
+                </h3>
+                <div className="space-y-2">
+                  {onlineExpenses.map((expense, index) => {
+                    const isTransaction = 'type' in expense;
+                    return (
                       <div 
                         key={String(expense.id) + index} 
                         className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg"
@@ -131,27 +187,78 @@ export function MonthlyExpensesModal({
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-red-600">
+                          <p className="font-semibold" style={{ color: navyBlueDark }}>
                             -${Number(expense.amount).toFixed(2)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {format(new Date(expense.date), 'h:mm a')}
+                            {format(new Date(expense.date), 'MMM d, h:mm a')}
                           </p>
                         </div>
                       </div>
-                    ))}
-                    
-                    <div className="pt-2 mt-2 border-t border-border/50 flex justify-between font-semibold">
-                      <span>Daily Total:</span>
-                      <span className="text-red-600">
-                        -${expenses.reduce((sum, exp) => sum + Number(exp.amount), 0).toFixed(2)}
-                      </span>
-                    </div>
+                    );
+                  })}
+                  <div className="pt-2 mt-2 border-t border-border/50 flex justify-between font-semibold" style={{ color: navyBlue }}>
+                    <span>Online Total:</span>
+                    <span style={{ color: navyBlueDark }}>
+                      -${onlineTotal.toFixed(2)}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            )}
+            
+            {/* Cash Expenses Section */}
+            {cashExpenses.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3 flex items-center" style={{ color: navyBlue }}>
+                  <span className="w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+                  Cash Expenses
+                </h3>
+                <div className="space-y-2">
+                  {cashExpenses.map((expense, index) => {
+                    const isCashExpense = 'isOffline' in expense;
+                    return (
+                      <div 
+                        key={String(expense.id) + index} 
+                        className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-medium">
+                            {expense.description || expense.category || 'Cash Expense'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {expense.category && `Category: ${expense.category}`}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold" style={{ color: navyBlueDark }}>
+                            -${Number(expense.amount).toFixed(2)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(expense.date), 'MMM d, h:mm a')}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="pt-2 mt-2 border-t border-border/50 flex justify-between font-semibold" style={{ color: navyBlue }}>
+                    <span>Cash Total:</span>
+                    <span style={{ color: navyBlueDark }}>
+                      -${cashTotal.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* If no expenses */}
+            {onlineExpenses.length === 0 && cashExpenses.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <p>No expenses recorded this month</p>
+                <p className="text-sm mt-2">Start adding transactions to see your spending breakdown</p>
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
