@@ -143,16 +143,32 @@ export function MonthlyExpensesModal({
         {/* Chart Visualization */}
         <div className="h-48 mb-6">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} />
-              <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `$${value}`} />
+            <BarChart data={chartData} margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+              <CartesianGrid strokeDasharray="0" vertical={false} />
+              <XAxis 
+                dataKey="name" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{fill: '#9ca3af', fontSize: 12}}
+                interval={0}
+              />
+              <YAxis 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{fill: '#9ca3af', fontSize: 12}} 
+                tickFormatter={(value) => `$${value}`} 
+                domain={[0, 'auto']}
+              />
               <Tooltip 
                 contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
                 itemStyle={{ color: 'hsl(var(--foreground))' }}
                 formatter={(value) => [`$${value}`, 'Amount']}
               />
-              <Bar dataKey="value" name="Amount">
+              <Bar 
+                dataKey="value" 
+                name="Amount"
+                radius={[4, 4, 0, 0]}
+              >
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={index === 0 ? navyBlue : navyBlueLight} />
                 ))}
