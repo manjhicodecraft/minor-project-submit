@@ -9,6 +9,7 @@ import { ButtonCustom } from "@/components/ui/button-custom";
 import { Search, Plus, Bell, Filter, CreditCard, ChevronDown, User } from "lucide-react";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 import { CashExpenseForm } from "@/components/dashboard/CashExpenseForm";
+import { MonthlyExpensesModal } from "@/components/dashboard/MonthlyExpensesModal";
 import { getCashExpenses } from "@/lib/cashExpenses";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
@@ -121,6 +122,7 @@ export default function Dashboard() {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [showBankBalances, setShowBankBalances] = useState(false);
   const [showCashExpenseModal, setShowCashExpenseModal] = useState(false);
+  const [showMonthlyExpensesModal, setShowMonthlyExpensesModal] = useState(false);
 
   // Get cash expenses from localStorage
   const cashExpenses = useMemo(() => {
@@ -362,6 +364,8 @@ export default function Dashboard() {
               trend="-4.1%" 
               trendUp={true} 
               icon={CreditCard}
+              onClick={() => setShowMonthlyExpensesModal(true)}
+              className="cursor-pointer"
             />
             <StatCard 
               title="Savings Goal" 
@@ -544,6 +548,13 @@ export default function Dashboard() {
           />
         </DialogContent>
       </Dialog>
+      
+      {/* Monthly Expenses Modal */}
+      <MonthlyExpensesModal 
+        open={showMonthlyExpensesModal}
+        onClose={() => setShowMonthlyExpensesModal(false)}
+        transactions={allTransactionsWithCash}
+      />
     </>
   );
 }
