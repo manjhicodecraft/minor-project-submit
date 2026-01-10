@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar, MobileNav } from "@/components/layout/Navbar";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -10,6 +10,7 @@ import { Search, Plus, Bell, Filter, CreditCard, ChevronDown, User } from "lucid
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 import { CashExpenseForm } from "@/components/dashboard/CashExpenseForm";
 import { MonthlyExpensesModal } from "@/components/dashboard/MonthlyExpensesModal";
+import { SavingGoalsModal } from "@/components/dashboard/SavingGoalsModal";
 import { getCashExpenses } from "@/lib/cashExpenses";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
@@ -34,6 +35,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { apiGet } from "@/lib/api";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import { SavingGoal } from "@shared/schema";
 
 // Calculate weekly spending from transactions
 const calculateWeeklySpending = (transactions: any[]) => {
@@ -116,13 +118,73 @@ export default function Dashboard() {
   const { user: authUser } = useAuth();
   const { data: user } = useUser(authUser?.id);
   const { data: accounts } = useAccounts(authUser?.id);
-  const { data: savingGoals } = useSavingGoals(authUser?.id);
+  const { data: apiSavingGoals } = useSavingGoals(authUser?.id);
   const { data: cards = [] } = useCards(authUser?.id);
+  
+  // Fetch saving goals from localStorage to ensure real-time sync
+  const [localSavingGoals, setLocalSavingGoals] = useState<SavingGoal[]>([]);
+  
+  useEffect(() => {
+    if (authUser?.id) {
+      try {
+        const savedGoals = localStorage.getItem(`savingGoals_${authUser.id}`);
+        if (savedGoals) {
+          const parsedGoals = JSON.parse(savedGoals);
+          // Ensure date strings are converted to Date objects
+          const goalsWithDates = parsedGoals.map((goal: any) => ({
+            ...goal,
+            createdAt: goal.createdAt ? new Date(goal.createdAt) : undefined,
+            deadline: goal.deadline ? new Date(goal.deadline) : undefined
+          }));
+          setLocalSavingGoals(goalsWithDates);
+        }
+      } catch (error) {
+        console.error('Error loading saving goals from localStorage:', error);
+      }
+    }
+  }, [authUser?.id]);
+  
+  // Combine API goals with local goals, prioritizing local goals for real-time updates
+  const savingGoals = useMemo(() => {
+    return localSavingGoals.length > 0 ? localSavingGoals : apiSavingGoals || [];
+  }, [localSavingGoals, apiSavingGoals]);
+  
+  // Add event listener to sync localStorage changes across tabs/windows
+  useEffect(() => {
+    const handleStorageChange = () => {
+      if (authUser?.id) {
+        try {
+          const savedGoals = localStorage.getItem(`savingGoals_${authUser.id}`);
+          if (savedGoals) {
+            const parsedGoals = JSON.parse(savedGoals);
+            // Ensure date strings are converted to Date objects
+            const goalsWithDates = parsedGoals.map((goal: any) => ({
+              ...goal,
+              createdAt: goal.createdAt ? new Date(goal.createdAt) : undefined,
+              deadline: goal.deadline ? new Date(goal.deadline) : undefined
+            }));
+            setLocalSavingGoals(goalsWithDates);
+          } else {
+            setLocalSavingGoals([]);
+          }
+        } catch (error) {
+          console.error('Error loading saving goals from localStorage:', error);
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [authUser?.id]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [showBankBalances, setShowBankBalances] = useState(false);
   const [showCashExpenseModal, setShowCashExpenseModal] = useState(false);
   const [showMonthlyExpensesModal, setShowMonthlyExpensesModal] = useState(false);
+  const [showSavingGoalsModal, setShowSavingGoalsModal] = useState(false);
 
   // Get cash expenses from localStorage
   const cashExpenses = useMemo(() => {
@@ -369,10 +431,12 @@ export default function Dashboard() {
             />
             <StatCard 
               title="Savings Goal" 
-              value={primarySavingGoal ? `$${primarySavingGoal.currentAmount.toLocaleString()}` : "$0"} 
-              trend={`${savingGoalProgress}%`} 
+              value={`$${savingGoals.reduce((sum, goal) => sum + goal.targetAmount, 0).toLocaleString()}`} 
+              trend={`${savingGoals.length > 0 ? Math.round((savingGoals.reduce((sum, goal) => sum + goal.currentAmount, 0) / savingGoals.reduce((sum, goal) => sum + goal.targetAmount, 0)) * 100) : 0}%`} 
               trendUp={true} 
               variant="dark"
+              onClick={() => setShowSavingGoalsModal(true)}
+              className="cursor-pointer"
             />
           </div>
 
@@ -554,6 +618,13 @@ export default function Dashboard() {
         open={showMonthlyExpensesModal}
         onClose={() => setShowMonthlyExpensesModal(false)}
         transactions={allTransactionsWithCash}
+      />
+      
+      {/* Saving Goals Modal */}
+      <SavingGoalsModal 
+        open={showSavingGoalsModal}
+        onClose={() => setShowSavingGoalsModal(false)}
+        userId={authUser?.id?.toString() || ''}
       />
     </>
   );

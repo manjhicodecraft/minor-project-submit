@@ -115,8 +115,12 @@ export type Transaction = {
 export type SavingGoal = {
   id: number;
   userId: number;
+  category?: string | null;
   targetAmount: number;
   currentAmount: number;
+  goalType?: 'monthly' | 'yearly';
+  deadline?: Date;
+  createdAt?: Date;
   editable: boolean;
 };
 
