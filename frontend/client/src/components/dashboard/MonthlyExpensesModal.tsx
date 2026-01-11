@@ -2,9 +2,12 @@ import { useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ButtonCustom } from "@/components/ui/button-custom";
 import { format, startOfMonth, endOfMonth, isSameMonth, isToday, isThisMonth } from "date-fns";
-import { TransactionList } from "./TransactionList";
-import { Transaction, CashExpense } from "@shared/schema";
+import { TransactionList } from './TransactionList';
+import { Transaction, CashExpense } from '@shared/schema';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { exportMonthlyExpensesToPDF } from '@/lib/pdfExporter';
 
 interface MonthlyExpensesModalProps {
   open: boolean;
@@ -95,6 +98,28 @@ export function MonthlyExpensesModal({
     return monthlyExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
   }, [monthlyExpenses]);
 
+  // Function to export monthly expenses to PDF
+  const handleExportMonthlyExpensesToPDF = () => {
+    const expensesForExport = monthlyExpenses.map(expense => {
+      const isCashExpense = 'isOffline' in expense && expense.isOffline === true;
+      return {
+        id: expense.id,
+        amount: expense.amount,
+        category: expense.category || expense.description || 'Uncategorized',
+        description: expense.description || '',
+        date: new Date(expense.date),
+        currency: 'USD', // Assuming USD for all expenses
+        isOffline: isCashExpense,
+        type: 'type' in expense ? expense.type : undefined
+      };
+    });
+    
+    exportMonthlyExpensesToPDF(
+      expensesForExport,
+      `monthly-expenses-${new Date().toISOString().split('T')[0]}.pdf`
+    );
+  };
+
   // Prepare data for the chart
   const chartData = [
     { name: 'Online', value: onlineTotal },
@@ -116,12 +141,21 @@ export function MonthlyExpensesModal({
               Total: ${totalMonthlyExpenses.toFixed(2)} • {expensesByDate.length} days with expenses
             </p>
           </div>
-          <ButtonCustom variant="outline" size="icon" onClick={onClose}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleExportMonthlyExpensesToPDF}
+            >
+              <Download className="w-4 h-4" />
+            </Button>
+            <ButtonCustom variant="outline" size="icon" onClick={onClose}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
               <path d="M18 6 6 18"></path>
               <path d="m6 6 12 12"></path>
             </svg>
-          </ButtonCustom>
+            </ButtonCustom>
+          </div>
         </DialogHeader>
         
         {/* Summary Cards */}

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar, MobileNav } from "@/components/layout/Navbar";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -36,6 +36,7 @@ import { Label } from "@/components/ui/label";
 import { apiGet } from "@/lib/api";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { SavingGoal } from "@shared/schema";
+import { Transaction, CashExpense } from "@shared/schema";
 
 // Calculate weekly spending from transactions
 const calculateWeeklySpending = (transactions: any[]) => {
@@ -185,7 +186,6 @@ export default function Dashboard() {
   const [showCashExpenseModal, setShowCashExpenseModal] = useState(false);
   const [showMonthlyExpensesModal, setShowMonthlyExpensesModal] = useState(false);
   const [showSavingGoalsModal, setShowSavingGoalsModal] = useState(false);
-
   // Get cash expenses from localStorage
   const cashExpenses = useMemo(() => {
     if (authUser?.id) {
@@ -193,6 +193,8 @@ export default function Dashboard() {
     }
     return [];
   }, [authUser?.id]);
+  
+
 
   // Fetch transactions for all accounts or selected account
   const { data: allTransactions = [] } = useQuery({

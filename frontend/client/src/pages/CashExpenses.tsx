@@ -7,7 +7,10 @@ import { format } from "date-fns";
 import { Plus, Wallet, TrendingDown } from "lucide-react";
 import { ButtonCustom } from "@/components/ui/button-custom";
 import { CashExpenseForm } from "@/components/dashboard/CashExpenseForm";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { exportCashExpensesToPDF } from '@/lib/pdfExporter';
 
 export default function CashExpenses() {
   const { user } = useAuth();
@@ -38,6 +41,25 @@ export default function CashExpenses() {
     return [...cashExpenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [cashExpenses]);
 
+  // Function to export cash expenses to PDF
+  const handleExportCashExpensesToPDF = () => {
+    const expensesForExport = cashExpenses.map(expense => ({
+      id: expense.id,
+      amount: expense.amount,
+      category: expense.category,
+      description: expense.description || '',
+      date: new Date(expense.date),
+      currency: expense.currency,
+      isOffline: true,
+      type: undefined
+    }));
+    
+    exportCashExpensesToPDF(
+      expensesForExport,
+      `cash-expenses-${new Date().toISOString().split('T')[0]}.pdf`
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <Navbar />
@@ -51,6 +73,14 @@ export default function CashExpenses() {
           </div>
           
           <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 rounded-xl"
+              onClick={handleExportCashExpensesToPDF}
+            >
+              <Download className="w-4 h-4" /> Export PDF
+            </Button>
             <ButtonCustom 
               variant="default" 
               className="gap-2 rounded-xl"

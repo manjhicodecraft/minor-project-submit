@@ -3,10 +3,14 @@ import { ButtonCustom } from "@/components/ui/button-custom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Wallet, Calendar, AlertCircle, Bell } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useLoans } from "@/hooks/use-finance";
-import ThemeToggle from "@/components/ui/ThemeToggle";
-import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
+import { useAuth } from '@/contexts/AuthContext';
+import { useLoans } from '@/hooks/use-finance';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import { ProfileDropdown } from '@/components/dashboard/ProfileDropdown';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { exportLoanExpensesToPDF } from '@/lib/pdfExporter';
+import { Loan } from '@shared/schema';
 
 export default function Loans() {
   const { user: authUser } = useAuth();
@@ -15,6 +19,25 @@ export default function Loans() {
   // Calculate totals
   const totalOutstanding = loans.reduce((sum, loan) => sum + loan.remainingAmount, 0);
   const totalPrincipal = loans.reduce((sum, loan) => sum + loan.totalAmount, 0);
+  
+  // Function to export loan expenses to PDF
+  const handleExportLoansToPDF = () => {
+    const loansForExport = loans.map(loan => ({
+      id: loan.id,
+      amount: loan.totalAmount.toString(),
+      category: loan.loanType,
+      description: `Loan ID: ${loan.id}`,
+      date: new Date(), // Using current date for export
+      currency: 'USD',
+      isOffline: false,
+      type: 'credit'
+    }));
+    
+    exportLoanExpensesToPDF(
+      loansForExport,
+      `loan-expenses-${new Date().toISOString().split('T')[0]}.pdf`
+    );
+  };
   
   // Find next EMI due (simple approach - first loan)
   const nextEmiLoan = loans.length > 0 ? loans[0] : null;
@@ -63,6 +86,14 @@ export default function Loans() {
             <p className="text-muted-foreground">Track your repayment progress and upcoming EMIs.</p>
           </div>
           <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 rounded-xl"
+              onClick={handleExportLoansToPDF}
+            >
+              <Download className="w-4 h-4" /> Export PDF
+            </Button>
             <ButtonCustom variant="outline" size="icon" className="rounded-xl">
               <Bell className="w-5 h-5" />
             </ButtonCustom>
