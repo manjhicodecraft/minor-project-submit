@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCreateUser } from "@/hooks/use-finance";
+import { useAuth } from "@/contexts/AuthContext";
 import { insertUserSchema } from "@shared/schema";
 import { Check, ChevronRight, ChevronLeft, Fingerprint, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -46,6 +47,7 @@ export default function AuthSignup() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Partial<z.infer<typeof insertUserSchema>>>({});
   const createUser = useCreateUser();
+  const { login } = useAuth();
   const { toast } = useToast();
 
   const handleNext = (data: any) => {
@@ -58,7 +60,13 @@ export default function AuthSignup() {
     try {
       await createUser.mutateAsync(finalData);
       toast({ title: "Account Created!", description: "Welcome to FinTrack." });
-      setLocation("/dashboard");
+      const loggedIn = await login(finalData.mobile as string, finalData.password as string);
+      if (loggedIn) {
+        setLocation("/dashboard");
+      } else {
+        toast({ title: "Signup complete", description: "Please login with your new account." });
+        setLocation("/login");
+      }
     } catch (error) {
       // Error handled in hook
     }
