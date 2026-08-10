@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { ArrowUpRight, ArrowDownRight, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,53 +23,51 @@ export function StatCard({
   variant = "default",
   onClick
 }: StatCardProps) {
-  
   const isPrimary = variant === "primary";
   const isDark = variant === "dark";
 
   return (
-    <div className={cn(
-      "rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden",
-      onClick && "cursor-pointer",
-      isPrimary ? "bg-primary text-primary-foreground shadow-xl shadow-primary/25" :
-      isDark ? "bg-gray-900 text-white shadow-xl" :
-      "bg-card border border-border/50 shadow-lg shadow-black/5 hover:shadow-xl",
-      className
-    )} onClick={onClick}>
-      {/* Background decoration */}
-      {isPrimary && (
-        <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -5, scale: 1.01 }}
+      transition={{ duration: 0.2 }}
+      className={cn(
+        "group relative overflow-hidden rounded-[24px] border p-5 sm:p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.35)] transition-all duration-300",
+        onClick && "cursor-pointer",
+        isPrimary ? "bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-500 text-white" :
+        isDark ? "bg-slate-950 text-white" :
+        "bg-card/90 border-border/70 hover:border-primary/30",
+        className
       )}
-      
-      <div className="flex justify-between items-start mb-4 relative z-10">
+      onClick={onClick}
+    >
+      {isPrimary && (
+        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-3xl" />
+      )}
+      <div className="relative z-10 flex items-start justify-between">
         <div className={cn(
-          "p-3 rounded-2xl",
-          isPrimary ? "bg-white/20" : 
-          isDark ? "bg-gray-800" : 
-          "bg-primary/10 text-primary"
+          "rounded-2xl p-3",
+          isPrimary ? "bg-white/20" : isDark ? "bg-white/10" : "bg-primary/10 text-primary"
         )}>
-          <Icon className="w-6 h-6" />
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
         </div>
         {trend && (
           <div className={cn(
-            "flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-full",
-            trendUp 
-              ? (isPrimary || isDark ? "bg-green-500/20 text-green-300" : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400")
-              : (isPrimary || isDark ? "bg-red-500/20 text-red-300" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400")
+            "flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold",
+            trendUp
+              ? (isPrimary || isDark ? "bg-emerald-500/20 text-emerald-100" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400")
+              : (isPrimary || isDark ? "bg-white/15 text-white/90" : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400")
           )}>
-            {trendUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+            {trendUp ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
             {trend}
           </div>
         )}
       </div>
-      
-      <div className="relative z-10">
-        <p className={cn(
-          "text-sm font-medium mb-1",
-          isPrimary || isDark ? "text-white/70" : "text-muted-foreground"
-        )}>{title}</p>
-        <h3 className="text-3xl font-display font-bold tracking-tight">{value}</h3>
+      <div className="relative z-10 mt-6">
+        <p className={cn("mb-2 text-sm font-medium", isPrimary || isDark ? "text-white/75" : "text-muted-foreground")}>{title}</p>
+        <h3 className="text-2xl font-semibold tracking-tight sm:text-3xl">{value}</h3>
       </div>
-    </div>
+    </motion.div>
   );
 }

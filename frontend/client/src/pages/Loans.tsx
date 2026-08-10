@@ -1,8 +1,8 @@
 import { Navbar, MobileNav } from "@/components/layout/Navbar";
 import { ButtonCustom } from "@/components/ui/button-custom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, Calendar, AlertCircle, Bell } from "lucide-react";
+import { Wallet, Calendar, AlertCircle, Bell, Sparkles } from "lucide-react";
+import { FinCard } from "@/components/ui/FinCard";
 import { useAuth } from '@/contexts/AuthContext';
 import { useLoans } from '@/hooks/use-finance';
 import ThemeToggle from '@/components/ui/ThemeToggle';
@@ -80,10 +80,13 @@ export default function Loans() {
       <Navbar />
       
       <main className="flex-1 lg:ml-64 p-4 lg:p-8 pb-24 lg:pb-8 max-w-[1200px] mx-auto w-full">
-        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <header className="mb-8 flex flex-col gap-4 rounded-[32px] border border-border/60 bg-gradient-to-br from-background via-card/80 to-background p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>
-            <h1 className="text-3xl font-display font-bold">Loans & Liabilities</h1>
-            <p className="text-muted-foreground">Track your repayment progress and upcoming EMIs.</p>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              <Sparkles className="h-3.5 w-3.5" /> Debt overview
+            </div>
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Loans & Liabilities</h1>
+            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Track your repayment progress and upcoming EMIs.</p>
           </div>
           <div className="flex items-center gap-4">
             <Button
@@ -109,40 +112,34 @@ export default function Loans() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-indigo-900 to-slate-900 text-white border-0 shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center text-lg font-medium text-white/80">
-                <span>Total Outstanding</span>
-                <Wallet className="w-5 h-5" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-4xl font-display font-bold mb-2">${totalOutstanding.toLocaleString()}</div>
-              <p className="text-sm text-indigo-200">Total initial principal: ${totalPrincipal.toLocaleString()}</p>
-            </CardContent>
-          </Card>
+          <FinCard gradient="bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-500" className="text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-white/70">Total Outstanding</p>
+                <p className="mt-2 text-3xl font-semibold sm:text-4xl">${totalOutstanding.toLocaleString()}</p>
+              </div>
+              <div className="rounded-2xl bg-white/15 p-3"><Wallet className="h-6 w-6" /></div>
+            </div>
+            <p className="mt-5 text-sm text-indigo-100">Total initial principal: ${totalPrincipal.toLocaleString()}</p>
+          </FinCard>
 
-          <Card className="bg-white dark:bg-card shadow-lg border-l-4 border-l-amber-500">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center text-lg font-medium">
-                <span>Next EMI Due</span>
-                <AlertCircle className="w-5 h-5 text-amber-500" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {nextEmiLoan ? (
-                <>
-                  <div className="text-4xl font-display font-bold mb-2">${nextEmiLoan.emiAmount.toLocaleString()}</div>
-                  <p className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Calendar className="w-4 h-4" /> Due on next month
-                  </p>
-                  <ButtonCustom variant="outline" size="sm" className="mt-4 w-full">Pay Now</ButtonCustom>
-                </>
-              ) : (
-                <p className="text-muted-foreground">No upcoming EMIs</p>
-              )}
-            </CardContent>
-          </Card>
+          <FinCard>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Next EMI Due</p>
+                <p className="mt-2 text-3xl font-semibold sm:text-4xl">${nextEmiLoan ? nextEmiLoan.emiAmount.toLocaleString() : '0'}</p>
+              </div>
+              <div className="rounded-2xl bg-amber-500/10 p-3 text-amber-500"><AlertCircle className="h-6 w-6" /></div>
+            </div>
+            {nextEmiLoan ? (
+              <>
+                <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"><Calendar className="h-4 w-4" /> Due on next month</p>
+                <ButtonCustom variant="outline" size="sm" className="mt-4 w-full rounded-2xl">Pay Now</ButtonCustom>
+              </>
+            ) : (
+              <p className="mt-4 text-sm text-muted-foreground">No upcoming EMIs</p>
+            )}
+          </FinCard>
         </div>
 
         <div className="space-y-6">
@@ -151,8 +148,8 @@ export default function Loans() {
             loans.map((loan) => {
               const percentage = Math.round(((loan.totalAmount - loan.remainingAmount) / loan.totalAmount) * 100);
               return (
-                <div key={loan.id} className="bg-card rounded-2xl p-6 border border-border shadow-sm">
-                  <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                <FinCard key={loan.id} className="p-6">
+                  <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                       <h4 className="text-lg font-bold">{loan.loanType}</h4>
                       <p className="text-sm text-muted-foreground">Loan ID: {loan.id}</p>
@@ -171,7 +168,7 @@ export default function Loans() {
                     <Progress value={percentage} className="h-3" />
                     <div className="text-right text-xs text-muted-foreground">Total: ${loan.totalAmount.toLocaleString()}</div>
                   </div>
-                </div>
+                </FinCard>
               );
             })
           ) : (

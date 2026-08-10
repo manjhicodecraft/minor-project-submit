@@ -1,12 +1,13 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar, MobileNav } from "@/components/layout/Navbar";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TransactionList } from "@/components/dashboard/TransactionList";
-import { useUser, useAccounts, useTransactions, useSavingGoals, useCards, type Card } from '@/hooks/use-finance';
+import { useUser, useAccounts, useSavingGoals, useCards } from '@/hooks/use-finance';
 import { Input } from "@/components/ui/input";
 import { ButtonCustom } from "@/components/ui/button-custom";
-import { Search, Plus, Bell, Filter, CreditCard, ChevronDown, User } from "lucide-react";
+import { Search, Plus, Bell, CreditCard, Sparkles, ArrowRight } from "lucide-react";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 import { CashExpenseForm } from "@/components/dashboard/CashExpenseForm";
 import { MonthlyExpensesModal } from "@/components/dashboard/MonthlyExpensesModal";
@@ -26,7 +27,6 @@ import {
   Cell 
 } from "recharts";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { insertAccountSchema } from "@shared/schema";
@@ -36,7 +36,7 @@ import { Label } from "@/components/ui/label";
 import { apiGet } from "@/lib/api";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { SavingGoal } from "@shared/schema";
-import { Transaction, CashExpense } from "@shared/schema";
+import { FinCard } from "@/components/ui/FinCard";
 
 // Calculate weekly spending from transactions
 const calculateWeeklySpending = (transactions: any[]) => {
@@ -355,28 +355,28 @@ export default function Dashboard() {
         <Navbar />
         
         <main className="flex-1 lg:ml-64 p-4 lg:p-8 pb-24 lg:pb-8 max-w-[1600px] mx-auto w-full">
-          {/* Header */}
-          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <header className="mb-8 flex flex-col gap-4 rounded-[32px] border border-border/60 bg-gradient-to-br from-background via-card/80 to-background p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
-              <h1 className="text-3xl font-display font-bold">Hello, {user?.fullName?.split(' ')[0] || "User"} 👋</h1>
-              <p className="text-muted-foreground">Here's your financial overview for today.</p>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                <Sparkles className="h-3.5 w-3.5" /> FinTrack overview
+              </div>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Hello, {user?.fullName?.split(' ')[0] || "User"} 👋</h1>
+              <p className="mt-1 text-sm text-muted-foreground sm:text-base">Here is your financial snapshot for today.</p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input 
                   placeholder="Search transactions..." 
-                  className="pl-10 w-64 rounded-xl bg-card"
+                  className="w-64 rounded-2xl border-border/70 bg-background/80 pl-10"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              
-              {/* Account Selector Dropdown */}
               {accounts && accounts.length > 1 && (
                 <select 
-                  className="bg-card border border-border rounded-xl px-3 py-2 text-sm"
+                  className="rounded-2xl border border-border/70 bg-background/80 px-3 py-2 text-sm shadow-sm"
                   value={selectedAccountId || ''}
                   onChange={(e) => setSelectedAccountId(e.target.value ? Number(e.target.value) : null)}
                 >
@@ -388,32 +388,24 @@ export default function Dashboard() {
                   ))}
                 </select>
               )}
-              
-              <ButtonCustom 
-                variant="outline" 
-                size="icon" 
-                className="rounded-xl"
-                onClick={() => setShowCashExpenseModal(true)}
-                title="Add Cash Expense"
-              >
-                <Plus className="w-5 h-5" />
+              <ButtonCustom variant="outline" size="icon" className="rounded-2xl" onClick={() => setShowCashExpenseModal(true)} title="Add Cash Expense">
+                <Plus className="h-5 w-5" />
               </ButtonCustom>
-              <ButtonCustom variant="outline" size="icon" className="rounded-xl">
-                <Bell className="w-5 h-5" />
+              <ButtonCustom variant="outline" size="icon" className="rounded-2xl">
+                <Bell className="h-5 w-5" />
               </ButtonCustom>
               <div className="hidden md:block">
                 <ThemeToggle />
               </div>
               <ProfileDropdown>
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 text-white flex items-center justify-center font-bold cursor-pointer">
+                <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-purple-600 font-bold text-white">
                   {user?.fullName?.[0] || "U"}
                 </div>
               </ProfileDropdown>
             </div>
           </header>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
             <StatCard 
               title="Total Balance" 
               value={`$${totalBalance.toLocaleString()}`} 
@@ -442,27 +434,24 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Chart Area */}
-            <div className="lg:col-span-2 space-y-8">
-              <div className="bg-card rounded-3xl p-6 shadow-sm border border-border/50">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold font-display">
-                    Spending Analytics
-                    {selectedAccountId && accounts?.find(a => a.id === selectedAccountId) && (
-                      <span className="text-sm font-normal text-muted-foreground ml-2">
-                        ({accounts.find(a => a.id === selectedAccountId)?.bank?.name} ...{accounts.find(a => a.id === selectedAccountId)?.accountNumber.slice(-4)})
-                      </span>
-                    )}
-                  </h3>
-                  <div className="flex gap-2">
-                    <select className="bg-secondary/50 text-sm rounded-lg px-3 py-1 border-none outline-none">
-                      <option>This Week</option>
-                      <option>Last Week</option>
-                    </select>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_0.8fr]">
+            <div className="space-y-8">
+              <FinCard className="p-0">
+                <div className="flex items-center justify-between border-b border-border/60 px-5 py-4 sm:px-6">
+                  <div>
+                    <h3 className="text-lg font-semibold">Spending Analytics</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedAccountId && accounts?.find(a => a.id === selectedAccountId)
+                        ? `${accounts.find(a => a.id === selectedAccountId)?.bank?.name} ...${accounts.find(a => a.id === selectedAccountId)?.accountNumber.slice(-4)}`
+                        : "Performance across your accounts"}
+                    </p>
                   </div>
+                  <select className="rounded-2xl border border-border/70 bg-background/80 px-3 py-2 text-sm shadow-sm">
+                    <option>This Week</option>
+                    <option>Last Week</option>
+                  </select>
                 </div>
-                <div className="h-[300px] w-full">
+                <div className="h-[320px] w-full p-4 sm:p-6">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={expenseData}>
                       <defs>
@@ -475,118 +464,111 @@ export default function Dashboard() {
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `$${value}`} />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '16px', border: 'none', boxShadow: '0 20px 50px -20px rgba(15,23,42,0.35)' }}
                         itemStyle={{ color: 'hsl(var(--foreground))' }}
                       />
                       <Area type="monotone" dataKey="amount" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
+              </FinCard>
 
-              {/* Linked Accounts and Cards */}
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold font-display">My Cards & Accounts</h3>
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-xl font-semibold">My Cards & Accounts</h3>
                   <AddAccountDialogComponent />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Render Accounts */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {accounts?.map((account) => (
-                    <div key={`account-${account.id}`} className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-all group cursor-pointer relative overflow-hidden">
-                       <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                          <CreditCard className="w-24 h-24" />
-                       </div>
-                       <div className="relative z-10">
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                               {/* Mock bank icon */}
-                               <span className="font-bold text-lg">{account.bank?.name?.[0]}</span>
-                            </div>
-                            {account.isLinked && <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Linked</span>}
+                    <FinCard key={`account-${account.id}`} className="relative overflow-hidden" hoverable>
+                      <div className="absolute right-0 top-0 opacity-10">
+                        <CreditCard className="h-24 w-24" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="mb-4 flex items-start justify-between">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                            {account.bank?.name?.[0]}
                           </div>
-                          <p className="text-sm text-muted-foreground mb-1">{account.bank?.name}</p>
-                          <p className="font-mono text-sm mb-4">**** **** **** {account.accountNumber.slice(-4)}</p>
-                          <p className="text-2xl font-bold font-display">${Number(account.balance).toLocaleString()}</p>
-                       </div>
-                    </div>
+                          {account.isLinked && <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-600">Linked</span>}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{account.bank?.name}</p>
+                        <p className="mb-3 mt-1 font-mono text-sm">**** **** **** {account.accountNumber.slice(-4)}</p>
+                        <p className="text-2xl font-semibold">${Number(account.balance).toLocaleString()}</p>
+                      </div>
+                    </FinCard>
                   ))}
-                  {/* Render Cards */}
                   {cards?.map((card) => (
-                    <div key={`card-${card.id}`} className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-all group cursor-pointer relative overflow-hidden">
-                       <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                          <CreditCard className="w-24 h-24" />
-                       </div>
-                       <div className="relative z-10">
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                               <span className="font-bold text-lg">{card.accountType?.charAt(0)}</span>
-                            </div>
+                    <FinCard key={`card-${card.id}`} className="relative overflow-hidden" hoverable>
+                      <div className="absolute right-0 top-0 opacity-10">
+                        <CreditCard className="h-24 w-24" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="mb-4 flex items-start justify-between">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                            {card.accountType?.charAt(0)}
                           </div>
-                          <p className="text-sm text-muted-foreground mb-1">{card.accountType} Card</p>
-                          <p className="font-mono text-sm mb-4">**** **** **** {card.cardAccountNumber?.slice(-4)}</p>
-                          <p className="text-2xl font-bold font-display">${Number(card.initialBalance).toLocaleString()}</p>
-                       </div>
-                    </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{card.accountType} Card</p>
+                        <p className="mb-3 mt-1 font-mono text-sm">**** **** **** {card.cardAccountNumber?.slice(-4)}</p>
+                        <p className="text-2xl font-semibold">${Number(card.initialBalance).toLocaleString()}</p>
+                      </div>
+                    </FinCard>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Sidebar Area */}
             <div className="space-y-8">
-              {/* Category Pie Chart */}
-              <div className="bg-card rounded-3xl p-6 shadow-sm border border-border/50">
-                <h3 className="text-xl font-bold font-display mb-6">Categories</h3>
-                <div className="h-[200px] w-full relative">
-                   <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={categoryData}
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {categoryData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                   </ResponsiveContainer>
-                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="text-center">
-                         <p className="text-xs text-muted-foreground">Total</p>
-                         <p className="text-xl font-bold">${categoryData.reduce((sum, cat) => sum + cat.value, 0).toLocaleString()}</p>
-                      </div>
-                   </div>
+              <FinCard>
+                <div className="mb-5 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Categories</h3>
+                  <span className="text-sm text-muted-foreground">This month</span>
+                </div>
+                <div className="relative h-[220px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={categoryData} innerRadius={56} outerRadius={78} paddingAngle={5} dataKey="value">
+                        {categoryData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground">Total</p>
+                      <p className="text-xl font-semibold">${categoryData.reduce((sum, cat) => sum + cat.value, 0).toLocaleString()}</p>
+                    </div>
+                  </div>
                 </div>
                 <div className="mt-4 space-y-3">
-                   {categoryData.map((cat) => {
-                      const total = categoryData.reduce((sum, c) => sum + c.value, 0);
-                      const percentage = total > 0 ? Math.round((cat.value / total) * 100) : 0;
-                      return (
-                        <div key={cat.name} className="flex justify-between items-center text-sm">
-                           <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
-                              <span>{cat.name}</span>
-                           </div>
-                           <span className="font-semibold">{percentage}%</span>
+                  {categoryData.map((cat) => {
+                    const total = categoryData.reduce((sum, c) => sum + c.value, 0);
+                    const percentage = total > 0 ? Math.round((cat.value / total) * 100) : 0;
+                    return (
+                      <div key={cat.name} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="h-3 w-3 rounded-full" style={{ backgroundColor: cat.color }} />
+                          <span>{cat.name}</span>
                         </div>
-                      );
-                   })}
+                        <span className="font-semibold">{percentage}%</span>
+                      </div>
+                    );
+                  })}
+                  {categoryData.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-border/70 p-4 text-center text-sm text-muted-foreground">
+                      No category data yet.
+                    </div>
+                  )}
                 </div>
-              </div>
+              </FinCard>
 
-              {/* Recent Transactions */}
               <div>
-                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold font-display">Recent Activity</h3>
-                    <ButtonCustom variant="link" size="sm" className="h-auto p-0">View All</ButtonCustom>
-                 </div>
-                 <div className="bg-card rounded-3xl p-2 shadow-sm border border-border/50">
-                    <TransactionList transactions={allTransactionsWithCash} limit={5} />
-                 </div>
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Recent Activity</h3>
+                  <ButtonCustom variant="link" size="sm" className="h-auto p-0">View All</ButtonCustom>
+                </div>
+                <FinCard className="p-2">
+                  <TransactionList transactions={allTransactionsWithCash} limit={5} />
+                </FinCard>
               </div>
             </div>
           </div>

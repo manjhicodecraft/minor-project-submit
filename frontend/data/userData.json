@@ -329,6 +329,21 @@
       "app_pin": "1230",
       "fingerprint_enabled": true,
       "is_profile_complete": false
+    },
+    {
+      "user_id": 21,
+      "full_name": "Kajal Manjhi",
+      "mobile_number": "+917804833176",
+      "email": "kajalmanjhi0407@gmail.com",
+      "created_at": "2026-08-09T13:41:07.581Z",
+      "password": "12345678",
+      "city": "raisen",
+      "country": "India",
+      "monthly_budget": 5000,
+      "currency": "INR",
+      "app_pin": "",
+      "fingerprint_enabled": true,
+      "is_profile_complete": true
     }
   ]
 }

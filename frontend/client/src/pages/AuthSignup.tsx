@@ -20,6 +20,27 @@ const step2Schema = z.object({ linkedAccountIds: z.array(z.number()) });
 const step3Schema = insertUserSchema.pick({ monthlyBudget: true, currency: true });
 const step4Schema = insertUserSchema.pick({ username: true, password: true, appPin: true, fingerprintEnabled: true });
 
+function buildSignupPayload(formData: Partial<z.infer<typeof insertUserSchema>>, stepData: Record<string, unknown>) {
+  const payload = {
+    ...formData,
+    ...stepData,
+    username: stepData.username ?? formData.username ?? formData.fullName?.replace(/\s+/g, "_"),
+    password: stepData.password ?? formData.password,
+    fullName: formData.fullName,
+    email: formData.email,
+    mobile: formData.mobile,
+    city: formData.city,
+    country: formData.country,
+    monthlyBudget: formData.monthlyBudget,
+    currency: formData.currency,
+    appPin: stepData.appPin ?? formData.appPin,
+    fingerprintEnabled: stepData.fingerprintEnabled ?? formData.fingerprintEnabled ?? false,
+    isProfileComplete: true,
+  };
+
+  return payload;
+}
+
 export default function AuthSignup() {
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(1);
@@ -33,7 +54,7 @@ export default function AuthSignup() {
   };
 
   const handleFinalSubmit = async (data: any) => {
-    const finalData = { ...formData, ...data };
+    const finalData = buildSignupPayload(formData, data);
     try {
       await createUser.mutateAsync(finalData);
       toast({ title: "Account Created!", description: "Welcome to FinTrack." });
@@ -229,9 +250,14 @@ function Step3({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => 
 }
 
 function Step4({ onSubmit, onBack, isLoading }: { onSubmit: (data: any) => void; onBack: () => void; isLoading: boolean }) {
-  const form = useForm({ 
+  const form = useForm<z.infer<typeof step4Schema>>({ 
     resolver: zodResolver(step4Schema),
-    defaultValues: { fingerprintEnabled: true }
+    defaultValues: {
+      username: "",
+      password: "",
+      appPin: "",
+      fingerprintEnabled: true,
+    }
   });
 
   return (
@@ -242,9 +268,9 @@ function Step4({ onSubmit, onBack, isLoading }: { onSubmit: (data: any) => void;
       onSubmit={form.handleSubmit(onSubmit)} 
       className="space-y-6"
     >
-      <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 p-3 rounded-lg flex gap-3 items-start text-sm">
+      <div className="bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 p-3 rounded-lg flex gap-3 items-start text-sm">
         <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" />
-        <p>Security Note: This account can only be accessed from this device (SIM binding enabled).</p>
+        <p>🔒 Your account is protected with secure login. You can access it from your phone or desktop.</p>
       </div>
 
       <div className="space-y-4">

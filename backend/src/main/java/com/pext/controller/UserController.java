@@ -19,13 +19,24 @@ public class UserController {
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody User user) {
         try {
-            // Check if user with same mobile already exists
+            if (user.getMobile() == null || user.getMobile().isBlank()) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "Mobile number is required");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
             if (userService.getUserByMobile(user.getMobile()).isPresent()) {
                 Map<String, String> errorResponse = new HashMap<>();
                 errorResponse.put("message", "User with this mobile number already exists");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
-            
+
+            if (user.getPassword() == null || user.getPassword().isBlank()) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "Password is required");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
             User savedUser = userService.createUser(user);
             return ResponseEntity.status(201).body(savedUser);
         } catch (Exception e) {

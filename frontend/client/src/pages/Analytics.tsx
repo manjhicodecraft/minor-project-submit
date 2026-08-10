@@ -1,16 +1,17 @@
 import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar, MobileNav } from "@/components/layout/Navbar";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TransactionList } from "@/components/dashboard/TransactionList";
-import { useUser, useAccounts, useTransactions, useSavingGoals, useCards } from '@/hooks/use-finance';
+import { useUser, useAccounts, useSavingGoals, useCards } from '@/hooks/use-finance';
 import { ButtonCustom } from "@/components/ui/button-custom";
 import { apiGet } from "@/lib/api";
 import { api } from "@shared/routes";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCashExpenses } from "@/lib/cashExpenses";
-import { CashExpense } from "@shared/schema";
-import { format, startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, subMonths, subYears, parseISO } from "date-fns";
+import { FinCard } from "@/components/ui/FinCard";
+import { startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { 
   AreaChart, 
   Area, 
@@ -266,10 +267,13 @@ export default function Analytics() {
       
       <main className="flex-1 lg:ml-64 p-4 lg:p-8 pb-24 lg:pb-8 max-w-[1600px] mx-auto w-full">
         {/* Header */}
-        <header className="flex flex-col gap-4 mb-8">
+        <header className="mb-8 flex flex-col gap-4 rounded-[32px] border border-border/60 bg-gradient-to-br from-background via-card/80 to-background p-5 sm:p-6">
           <div>
-            <h1 className="text-3xl font-display font-bold">Analytics</h1>
-            <p className="text-muted-foreground">Track your spending patterns and financial trends</p>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              Analytics overview
+            </div>
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Analytics</h1>
+            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Track your spending patterns and financial trends</p>
           </div>
           
           <div className="flex flex-wrap gap-2">
@@ -278,7 +282,7 @@ export default function Analytics() {
                 key={option.value}
                 variant={timeFilter === option.value ? "default" : "outline"}
                 size="sm"
-                className="rounded-xl flex-1 min-w-[80px]"
+                className="min-w-[88px] rounded-2xl"
                 onClick={() => setTimeFilter(option.value as TimeFilter)}
               >
                 {option.label}
@@ -326,8 +330,8 @@ export default function Analytics() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Chart Area */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+            <FinCard className="p-5">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border/60 px-5 py-4 sm:px-6">
                 <div>
                   <h3 className="text-xl font-bold font-display">
                     Spending Analytics
@@ -337,7 +341,7 @@ export default function Analytics() {
                   </p>
                 </div>
               </div>
-              <div className="h-[250px] sm:h-[300px] w-full">
+              <div className="h-[250px] w-full p-4 sm:h-[300px] sm:p-6">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={expenseData}>
                     <defs>
@@ -380,23 +384,22 @@ export default function Analytics() {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </FinCard>
 
-            {/* Recent Transactions */}
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold font-display">Recent Transactions</h3>
               </div>
-              <div className="bg-card rounded-2xl p-2 shadow-sm border border-border/50">
+              <FinCard className="p-2">
                 <TransactionList transactions={filteredTransactions.slice(0, 5) as any} limit={5} />
-              </div>
+              </FinCard>
             </div>
           </div>
 
           {/* Sidebar Area */}
           <div className="space-y-6">
             {/* Category Breakdown */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
+            <FinCard className="p-5">
               <h3 className="text-xl font-bold font-display mb-5">Category Breakdown</h3>
               <div className="h-[200px] w-full relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -436,10 +439,10 @@ export default function Analytics() {
                   );
                 })}
               </div>
-            </div>
+            </FinCard>
 
             {/* Top Spending Categories */}
-            <div className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
+            <FinCard className="p-5">
               <h3 className="text-xl font-bold font-display mb-4">Top Spending Categories</h3>
               <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                 {categoryData.slice(0, 5).map((cat, index) => (
@@ -455,7 +458,7 @@ export default function Analytics() {
                   <p className="text-center text-muted-foreground py-4">No spending data available</p>
                 )}
               </div>
-            </div>
+            </FinCard>
           </div>
         </div>
       </main>

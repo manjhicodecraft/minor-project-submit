@@ -1,13 +1,15 @@
-// API utility to connect to the Java backend
-const API_BASE_URL = 'http://localhost:8081';
+// API utility to call the local app API.
+// In development this uses the same-origin /api route so Vite/Express can handle it.
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL?.replace(/\/$/, "") || "";
 
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const fullUrl = url.startsWith('/api') ? `${API_BASE_URL}${url}` : url;
-  
+  const isAbsoluteUrl = /^https?:\/\//i.test(url);
+  const fullUrl = isAbsoluteUrl ? url : `${API_BASE_URL}${url}`;
+
   const res = await fetch(fullUrl, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},

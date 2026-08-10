@@ -12,8 +12,8 @@ import { LockKeyhole, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const loginSchema = z.object({
-  mobile: z.string().min(10, "Please enter a valid mobile number"),
-  password: z.string().min(1, "Password is required"),
+  mobile: z.string().trim().min(1, "Please enter a valid mobile number"),
+  password: z.string().trim().min(1, "Password is required"),
 });
 
 export default function Login() {

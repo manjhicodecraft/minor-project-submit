@@ -11,8 +11,9 @@ import { apiDelete } from '@/lib/api';
 import { Transaction } from '@shared/schema';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { ButtonCustom } from '@/components/ui/button-custom';
-import { Bell } from 'lucide-react';
+import { Bell, Sparkles } from 'lucide-react';
 import { ProfileDropdown } from '@/components/dashboard/ProfileDropdown';
+import { FinCard } from '@/components/ui/FinCard';
 
 // Define the Card type
 interface Card {
@@ -157,10 +158,13 @@ export default function Cards() {
       <Navbar />
       
       <main className="flex-1 lg:ml-64 p-4 lg:p-8 pb-24 lg:pb-8 max-w-[1600px] mx-auto w-full">
-        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <header className="mb-8 flex flex-col gap-4 rounded-[32px] border border-border/60 bg-gradient-to-br from-background via-card/80 to-background p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>
-            <h1 className="text-3xl font-display font-bold">Card Management</h1>
-            <p className="text-muted-foreground">Manage your cards in one place</p>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              <Sparkles className="h-3.5 w-3.5" /> Card hub
+            </div>
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Card Management</h1>
+            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Manage your cards in one place</p>
           </div>
           <div className="flex items-center gap-4">
             <ButtonCustom variant="outline" size="icon" className="rounded-xl">
@@ -179,8 +183,8 @@ export default function Cards() {
 
         {/* Add Cards Section */}
         <section className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold font-display">Add New Card</h2>
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-semibold">Add New Card</h2>
             <button 
               onClick={() => setIsAddingCard(!isAddingCard)}
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors"
@@ -190,25 +194,25 @@ export default function Cards() {
           </div>
           
           {isAddingCard && (
-            <div className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
+            <FinCard className="p-6">
               <CardForm onAddCard={handleAddCard} />
-            </div>
+            </FinCard>
           )}
         </section>
 
         {/* My Cards Section */}
         <section>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold font-display">My Cards</h2>
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-semibold">My Cards</h2>
             <span className="text-sm text-muted-foreground">
               {cards.length} {cards.length === 1 ? 'card' : 'cards'}
             </span>
           </div>
           
           {cardsLoading ? (
-            <div className="bg-card p-12 rounded-2xl border border-border/50 text-center">
+            <FinCard className="p-12 text-center">
               <p className="text-muted-foreground">Loading cards...</p>
-            </div>
+            </FinCard>
           ) : cards.length > 0 ? (
             <CardDisplay 
               cards={cards} 
@@ -216,18 +220,18 @@ export default function Cards() {
               onCardClick={handleCardClick}
             />
           ) : (
-            <div className="bg-card p-12 rounded-2xl border border-border/50 text-center">
-              <h3 className="text-xl font-semibold mb-2">No cards yet</h3>
-              <p className="text-muted-foreground mb-4">
+            <FinCard className="p-12 text-center">
+              <h3 className="mb-2 text-xl font-semibold">No cards yet</h3>
+              <p className="mb-4 text-muted-foreground">
                 Add your first card using the form above
               </p>
               <button 
                 onClick={() => setIsAddingCard(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors"
+                className="rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 Add Card
               </button>
-            </div>
+            </FinCard>
           )}
         </section>
       </main>

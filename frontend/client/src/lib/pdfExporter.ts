@@ -35,11 +35,11 @@ export const exportExpensesToPDF = (expenses: ExpenseItem[], fileName: string = 
   doc.text('General Expenses', 20, 35);
   
   // Add summary section
-  addSummarySection(doc, totalAmount, totalExpenses, averageAmount, expenses);
+  addSummarySection(doc, totalAmount, totalExpenses, averageAmount);
   
   // Add detailed expense list section
-  addDetailedExpenseList(doc, expenses, 110); // Start after summary section
-  
+  addDetailedExpenseList(doc, expenses, 120); // Start after summary section with more space
+
   // Save the PDF
   doc.save(fileName);
 };
@@ -67,10 +67,10 @@ export const exportCashExpensesToPDF = (expenses: ExpenseItem[], fileName: strin
   doc.text('Detailed Cash Expense Analysis', 20, 35);
   
   // Add summary section
-  addSummarySection(doc, totalAmount, totalExpenses, averageAmount, expenses);
+  addSummarySection(doc, totalAmount, totalExpenses, averageAmount);
   
   // Add detailed expense list section
-  addDetailedExpenseList(doc, expenses, 110); // Start after summary section
+  addDetailedExpenseList(doc, expenses, 120); // Start after summary section with more space
   
   // Save the PDF
   doc.save(fileName);
@@ -99,10 +99,10 @@ export const exportMonthlyExpensesToPDF = (expenses: ExpenseItem[], fileName: st
   doc.text('Monthly Spending Summary', 20, 35);
   
   // Add summary section
-  addSummarySection(doc, totalAmount, totalExpenses, averageAmount, expenses);
+  addSummarySection(doc, totalAmount, totalExpenses, averageAmount);
   
   // Add detailed expense list section
-  addDetailedExpenseList(doc, expenses, 110); // Start after summary section
+  addDetailedExpenseList(doc, expenses, 120); // Start after summary section with more space
   
   // Save the PDF
   doc.save(fileName);
@@ -131,17 +131,17 @@ export const exportLoanExpensesToPDF = (expenses: ExpenseItem[], fileName: strin
   doc.text('Loan Payment Summary', 20, 35);
   
   // Add summary section
-  addSummarySection(doc, totalAmount, totalExpenses, averageAmount, expenses);
+  addSummarySection(doc, totalAmount, totalExpenses, averageAmount);
   
   // Add detailed expense list section
-  addDetailedExpenseList(doc, expenses, 110); // Start after summary section
+  addDetailedExpenseList(doc, expenses, 120); // Start after summary section with more space
   
   // Save the PDF
   doc.save(fileName);
 };
 
 // Helper function to add summary section to PDF
-const addSummarySection = (doc: any, totalAmount: number, totalExpenses: number, averageAmount: number, expenses: ExpenseItem[]) => {
+const addSummarySection = (doc: any, totalAmount: number, totalExpenses: number, averageAmount: number) => {
   // Add section title
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0); // Black
@@ -151,25 +151,22 @@ const addSummarySection = (doc: any, totalAmount: number, totalExpenses: number,
   doc.setDrawColor(200);
   doc.line(20, 60, 200, 60);
   
-  // Determine currency from the first expense or default to $
-  const currency = expenses.length > 0 ? expenses[0].currency || '$' : '$';
-  
   // Add summary table - check if autoTable is available before using it
   if (typeof doc.autoTable !== 'function') {
     console.error('autoTable is not available. Make sure jspdf-autotable is properly imported.');
     // Add summary without table as fallback
     doc.setFontSize(12);
-    doc.text(`Total Expense Amount: ${currency}${totalAmount.toFixed(2)}`, 20, 70);
+    doc.text(`Total Expense Amount: ₹${totalAmount.toFixed(2)}`, 20, 70);
     doc.text(`Total Number of Expenses: ${totalExpenses}`, 20, 80);
-    doc.text(`Average Expense Amount: ${currency}${averageAmount.toFixed(2)}`, 20, 90);
+    doc.text(`Average Expense Amount: ₹${averageAmount.toFixed(2)}`, 20, 90);
     return;
   }
   
   // Add summary table
   const summaryData = [
-    ['Total Expense Amount', `${currency}${totalAmount.toFixed(2)}`],
+    ['Total Expense Amount', `₹${totalAmount.toFixed(2)}`],
     ['Total Number of Expenses', totalExpenses.toString()],
-    ['Average Expense Amount', `${currency}${averageAmount.toFixed(2)}`]
+    ['Average Expense Amount', `₹${averageAmount.toFixed(2)}`]
   ];
   
   // Use autoTable for the summary
@@ -195,29 +192,32 @@ const addSummarySection = (doc: any, totalAmount: number, totalExpenses: number,
 
 // Helper function to add detailed expense list to PDF
 const addDetailedExpenseList = (doc: any, expenses: ExpenseItem[], startY: number) => {
-  // Add section title
+  // Add section title with more space from previous section
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0); // Black
-  doc.text('ALL EXPENSES', 20, startY - 15);
+  doc.text('ALL EXPENSES', 20, startY - 25);
   
-  // Draw a line separator
+  // Draw a line separator with proper spacing
   doc.setDrawColor(200);
-  doc.line(20, startY - 10, 200, startY - 10);
+  doc.line(20, startY - 20, 200, startY - 20);
   
   // Prepare table data
-  const tableColumn = ["Title/Description", "Date & Time", "Category", "Amount"];
+  const tableColumn = ["Title/Description", "Date & Time", "Category", "Type", "Amount"];
   const tableRows: any[][] = [];
 
   expenses.forEach((expense) => {
     const description = (expense.description || expense.category || 'N/A').toString();
     const dateTime = new Date(expense.date).toLocaleString();
     const category = expense.category || 'Uncategorized';
-    const amount = `${expense.currency || '$'}${expense.amount}`;
+    // Determine if the expense is cash or online
+    const expenseType = expense.isOffline ? 'Cash' : 'Online';
+    const amount = `₹${expense.amount}`;
     
     const rowData = [
       description,
       dateTime,
       category,
+      expenseType,
       amount
     ];
     
@@ -229,12 +229,12 @@ const addDetailedExpenseList = (doc: any, expenses: ExpenseItem[], startY: numbe
     console.error('autoTable is not available. Make sure jspdf-autotable is properly imported.');
     // Fallback to manual text rendering if autoTable is not available
     doc.setFontSize(10);
-    let yPosition = startY;
+    let yPosition = startY; // Start position for table content
     
     // Render header row with bold text
     doc.setFont('helvetica', 'bold');
     tableColumn.forEach((header, index) => {
-      doc.text(header, 20 + (index * 45), yPosition);
+      doc.text(header, 20 + (index * 35), yPosition);
     });
     yPosition += 10;
     
@@ -242,7 +242,7 @@ const addDetailedExpenseList = (doc: any, expenses: ExpenseItem[], startY: numbe
     doc.setFont('helvetica', 'normal');
     tableRows.forEach(row => {
       row.forEach((cell, cellIndex) => {
-        doc.text(cell.toString(), 20 + (cellIndex * 45), yPosition);
+        doc.text(cell.toString(), 20 + (cellIndex * 35), yPosition);
       });
       yPosition += 8;
     });
@@ -252,7 +252,7 @@ const addDetailedExpenseList = (doc: any, expenses: ExpenseItem[], startY: numbe
   doc.autoTable({
     head: [tableColumn],
     body: tableRows,
-    startY: startY,
+    startY: startY, // Start position for the table content
     styles: {
       fontSize: 10,
     },
@@ -264,7 +264,15 @@ const addDetailedExpenseList = (doc: any, expenses: ExpenseItem[], startY: numbe
       fillColor: [249, 250, 251] // Tailwind's gray-50
     },
     margin: { left: 20, right: 20 },
-    theme: 'striped'
+    theme: 'striped',
+    // Set column widths for consistent alignment
+    columnStyles: {
+      0: { cellWidth: 50 }, // Title/Description
+      1: { cellWidth: 40 }, // Date & Time
+      2: { cellWidth: 30 }, // Category
+      3: { cellWidth: 25 }, // Type
+      4: { cellWidth: 30 }  // Amount
+    }
   });
 };
 

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, CreditCard, Settings, PieChart, LogOut, Wallet, User, Coins } from "lucide-react";
+import { LayoutDashboard, CreditCard, Settings, PieChart, LogOut, Wallet, Coins, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
@@ -16,37 +16,47 @@ export function Navbar() {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-screen fixed left-0 top-0 bg-card border-r border-border/50 shadow-xl z-50">
-      <div className="p-8">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-indigo-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/25">
-            F
+    <aside className="fixed left-0 top-0 z-50 hidden h-screen w-72 flex-col border-r border-border/70 bg-card/90 px-4 py-5 shadow-[20px_0_80px_-40px_rgba(15,23,42,0.35)] backdrop-blur lg:flex">
+      <div className="mb-8 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/10 p-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary to-indigo-500 text-xl font-bold text-white shadow-lg shadow-primary/25">
+          F
+        </div>
+        <div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <Sparkles className="h-3.5 w-3.5" /> FinTrack
           </div>
-          <span className="font-display font-bold text-2xl tracking-tight">FinTrack</span>
+          <p className="text-xs text-muted-foreground">Smart finance control</p>
         </div>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className="flex-1 space-y-2">
         {navItems.map((item) => {
           const isActive = location === item.href;
           return (
-            <Link key={item.href} href={item.href} className={cn(
-              "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
-              isActive 
-                ? "bg-primary/10 text-primary font-semibold shadow-sm" 
-                : "text-muted-foreground hover:bg-accent hover:text-foreground"
-            )}>
-              <item.icon className={cn("w-5 h-5", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200",
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                  : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
+              )}
+            >
+              <span className={cn("rounded-xl p-2 transition-colors", isActive ? "bg-white/15" : "bg-background/70 group-hover:bg-primary/10") }>
+                <item.icon className={cn("h-5 w-5", isActive ? "text-white" : "text-muted-foreground group-hover:text-primary")} />
+              </span>
               {item.label}
+              {isActive && <span className="ml-auto h-2.5 w-2.5 rounded-full bg-white/90" />}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 mt-auto">
-        <Link href="/login" className="flex items-center gap-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-colors">
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium">Sign Out</span>
+      <div className="mt-4 rounded-2xl border border-border/70 bg-background/70 p-2">
+        <Link href="/login" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10">
+          <LogOut className="h-5 w-5" />
+          <span>Sign Out</span>
         </Link>
       </div>
     </aside>

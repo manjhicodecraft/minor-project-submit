@@ -3,12 +3,12 @@ import { Navbar, MobileNav } from "@/components/layout/Navbar";
 import { ButtonCustom } from "@/components/ui/button-custom";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import ThemeToggle from "@/components/ui/ThemeToggle";
-import { Bell } from "lucide-react";
+import { Bell, Eye, EyeOff, ShieldCheck, Sparkles, Upload } from "lucide-react";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
+import { FinCard } from "@/components/ui/FinCard";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -17,6 +17,8 @@ export default function Settings() {
   const [fingerprintAuth, setFingerprintAuth] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
   
   const handleSave = () => {
     // In a real app, this would save settings to the backend
@@ -28,10 +30,13 @@ export default function Settings() {
       <Navbar />
       
       <main className="flex-1 lg:ml-64 p-4 lg:p-8 max-w-[1600px] mx-auto w-full">
-        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <header className="mb-8 flex flex-col gap-4 rounded-[32px] border border-border/60 bg-gradient-to-br from-background via-card/80 to-background p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>
-            <h1 className="text-3xl font-display font-bold">Settings</h1>
-            <p className="text-muted-foreground">Manage your account preferences</p>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              <Sparkles className="h-3.5 w-3.5" /> Preferences
+            </div>
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Settings</h1>
+            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Manage your account preferences</p>
           </div>
           <div className="flex items-center gap-4">
             <ButtonCustom variant="outline" size="icon" className="rounded-xl">
@@ -51,12 +56,10 @@ export default function Settings() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Section */}
           <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FinCard className="p-6">
+              <h2 className="text-xl font-semibold">Profile Information</h2>
+              <div className="mt-6 space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <Label htmlFor="fullName">Full Name</Label>
                     <Input 
@@ -91,15 +94,13 @@ export default function Settings() {
                     placeholder="Enter your location" 
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </FinCard>
 
             {/* Security Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Security</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <FinCard className="p-6">
+              <h2 className="text-xl font-semibold">Security</h2>
+              <div className="mt-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Fingerprint Authentication</Label>
@@ -118,15 +119,13 @@ export default function Settings() {
                     placeholder="Set a 4-digit PIN" 
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </FinCard>
 
             {/* Notification Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <FinCard className="p-6">
+              <h2 className="text-xl font-semibold">Notifications</h2>
+              <div className="mt-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Push Notifications</Label>
@@ -157,17 +156,15 @@ export default function Settings() {
                     onCheckedChange={setSmsNotifications} 
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </FinCard>
           </div>
 
           {/* Sidebar with additional options */}
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Preferences</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <FinCard className="p-6">
+              <h2 className="text-xl font-semibold">Preferences</h2>
+              <div className="mt-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>Dark Mode</Label>
                   <Switch 
@@ -193,19 +190,17 @@ export default function Settings() {
                     </select>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </FinCard>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Account</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <FinCard className="p-6">
+              <h2 className="text-xl font-semibold">Account</h2>
+              <div className="mt-6 space-y-4">
                 <ButtonCustom className="w-full">Change Password</ButtonCustom>
                 <ButtonCustom variant="outline" className="w-full">Backup Data</ButtonCustom>
                 <ButtonCustom variant="destructive" className="w-full">Delete Account</ButtonCustom>
-              </CardContent>
-            </Card>
+              </div>
+            </FinCard>
 
             <div className="text-center pt-4">
               <ButtonCustom onClick={handleSave} className="w-full">

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card as CardComponent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { CreditCard, Trash2 } from 'lucide-react';
 
 // Define the Card type
 interface Card {
