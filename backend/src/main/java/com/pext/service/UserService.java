@@ -13,6 +13,17 @@ public class UserService {
     private UserRepository userRepository;
     
     public User createUser(User user) {
+        // Normalize values
+        if (user.getUsername() != null) {
+            user.setUsername(user.getUsername().trim());
+        }
+        if (user.getMobile() != null) {
+            user.setMobile(user.getMobile().trim());
+        }
+        if (user.getPassword() != null) {
+            user.setPassword(user.getPassword().trim());
+        }
+
         // Set defaults
         if (user.getUsername() == null || user.getUsername().isEmpty()) {
             user.setUsername(user.getFullName() != null ? user.getFullName().replace(" ", "_") : "user_" + System.currentTimeMillis());
@@ -43,7 +54,12 @@ public class UserService {
     }
     
     public boolean authenticateUser(String mobile, String password) {
-        Optional<User> user = userRepository.findByMobile(mobile);
-        return user.isPresent() && user.get().getPassword().equals(password);
+        if (mobile == null || password == null) {
+            return false;
+        }
+        String normalizedMobile = mobile.trim();
+        String normalizedPassword = password.trim();
+        Optional<User> user = userRepository.findByMobile(normalizedMobile);
+        return user.isPresent() && user.get().getPassword() != null && user.get().getPassword().equals(normalizedPassword);
     }
 }

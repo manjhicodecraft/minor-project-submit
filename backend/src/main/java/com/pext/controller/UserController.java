@@ -61,6 +61,9 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String mobile = credentials.get("mobile_number");
+        if (mobile == null) {
+            mobile = credentials.get("mobile");
+        }
         String password = credentials.get("password");
         
         if (mobile == null || password == null) {
@@ -69,8 +72,10 @@ public class UserController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
         
-        if (userService.authenticateUser(mobile, password)) {
-            Optional<User> user = userService.getUserByMobile(mobile);
+        String normalizedMobile = mobile.trim();
+        String normalizedPassword = password.trim();
+        if (userService.authenticateUser(normalizedMobile, normalizedPassword)) {
+            Optional<User> user = userService.getUserByMobile(normalizedMobile);
             return ResponseEntity.ok(user.get());
         } else {
             Map<String, String> errorResponse = new HashMap<>();

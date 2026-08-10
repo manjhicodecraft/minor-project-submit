@@ -1,0 +1,22 @@
+# Dependencies
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+
+# Vite cache
+frontend/node_modules/.vite/
+
+# IntelliJ IDEA
+.idea/
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
