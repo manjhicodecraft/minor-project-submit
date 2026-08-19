@@ -111,7 +111,7 @@ export default function CashExpenses() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Cash Spent</p>
-                <p className="text-2xl font-bold font-display">${totalCashSpent.toFixed(2)}</p>
+                <p className="text-2xl font-bold font-display">₹{totalCashSpent.toFixed(2)}</p>
               </div>
             </div>
           </FinCard>
@@ -136,7 +136,7 @@ export default function CashExpenses() {
               <div>
                 <p className="text-sm text-muted-foreground">Avg. Expense</p>
                 <p className="text-2xl font-bold font-display">
-                  ${cashExpenses.length > 0 ? (totalCashSpent / cashExpenses.length).toFixed(2) : '0.00'}
+                  ₹{cashExpenses.length > 0 ? (totalCashSpent / cashExpenses.length).toFixed(2) : '0.00'}
                 </p>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function CashExpenses() {
               <div key={category} className="rounded-xl bg-secondary/50 p-4">
                 <div className="flex items-center justify-between">
                   <span className="font-medium capitalize">{category}</span>
-                  <span className="font-bold">${total.toFixed(2)}</span>
+                  <span className="font-bold">₹{total.toFixed(2)}</span>
                 </div>
                 <div className="mt-2 h-2 w-full rounded-full bg-background">
                   <div 
@@ -221,7 +221,7 @@ export default function CashExpenses() {
 
                   <div className="text-right">
                     <span className="block text-lg font-bold text-foreground">
-                      -${Number(expense.amount).toLocaleString()}
+                      -₹{Number(expense.amount).toLocaleString()}
                     </span>
                     <span className="mt-1 inline-block rounded-full bg-secondary px-2 py-0.5 text-xs capitalize text-muted-foreground">
                       {expense.category}

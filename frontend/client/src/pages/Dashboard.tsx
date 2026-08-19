@@ -40,7 +40,7 @@ import { FinCard } from "@/components/ui/FinCard";
 
 // Calculate weekly spending from transactions
 const calculateWeeklySpending = (transactions: any[]) => {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   // Group transactions by day of week
   const dailyTotals: Record<string, number> = {};
@@ -227,8 +227,20 @@ export default function Dashboard() {
   });
 
   // Combine regular transactions with cash expenses
+  // Normalize backend transaction types:
+  // EXPENSE -> debit
+  // INCOME  -> credit
   const allTransactionsWithCash = useMemo(() => {
-    return [...allTransactions, ...cashExpenses];
+    const normalizedTransactions = allTransactions.map((tx: any) => ({
+      ...tx,
+      type:
+        String(tx.type).toUpperCase() === "EXPENSE"
+          ? "debit"
+          : String(tx.type).toUpperCase() === "INCOME"
+          ? "credit"
+          : String(tx.type).toLowerCase(),
+    }));
+    return [...normalizedTransactions, ...cashExpenses];
   }, [allTransactions, cashExpenses]);
 
   // Memoize calculations that depend on transactions
@@ -408,7 +420,7 @@ export default function Dashboard() {
           <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
             <StatCard 
               title="Total Balance" 
-              value={`$${totalBalance.toLocaleString()}`} 
+              value={`₹${totalBalance.toLocaleString()}`} 
               trend="+2.5%" 
               trendUp={true}
               variant="primary"
@@ -416,7 +428,7 @@ export default function Dashboard() {
             />
             <StatCard 
               title="Monthly Spend" 
-              value={`$${monthlySpend.toLocaleString()}`} 
+              value={`₹${monthlySpend.toLocaleString()}`} 
               trend="-4.1%" 
               trendUp={true} 
               icon={CreditCard}
@@ -425,7 +437,7 @@ export default function Dashboard() {
             />
             <StatCard 
               title="Savings Goal" 
-              value={`$${savingGoals.reduce((sum, goal) => sum + goal.targetAmount, 0).toLocaleString()}`} 
+              value={`₹${savingGoals.reduce((sum, goal) => sum + goal.targetAmount, 0).toLocaleString()}`} 
               trend={`${savingGoals.length > 0 ? Math.round((savingGoals.reduce((sum, goal) => sum + goal.currentAmount, 0) / savingGoals.reduce((sum, goal) => sum + goal.targetAmount, 0)) * 100) : 0}%`} 
               trendUp={true} 
               variant="dark"
@@ -462,7 +474,7 @@ export default function Dashboard() {
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `$${value}`} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `₹${value}`} />
                       <Tooltip 
                         contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '16px', border: 'none', boxShadow: '0 20px 50px -20px rgba(15,23,42,0.35)' }}
                         itemStyle={{ color: 'hsl(var(--foreground))' }}
@@ -493,7 +505,7 @@ export default function Dashboard() {
                         </div>
                         <p className="text-sm text-muted-foreground">{account.bank?.name}</p>
                         <p className="mb-3 mt-1 font-mono text-sm">**** **** **** {account.accountNumber.slice(-4)}</p>
-                        <p className="text-2xl font-semibold">${Number(account.balance).toLocaleString()}</p>
+                        <p className="text-2xl font-semibold">₹{Number(account.balance).toLocaleString()}</p>
                       </div>
                     </FinCard>
                   ))}
@@ -510,7 +522,7 @@ export default function Dashboard() {
                         </div>
                         <p className="text-sm text-muted-foreground">{card.accountType} Card</p>
                         <p className="mb-3 mt-1 font-mono text-sm">**** **** **** {card.cardAccountNumber?.slice(-4)}</p>
-                        <p className="text-2xl font-semibold">${Number(card.initialBalance).toLocaleString()}</p>
+                        <p className="text-2xl font-semibold">₹{Number(card.initialBalance).toLocaleString()}</p>
                       </div>
                     </FinCard>
                   ))}
@@ -535,7 +547,7 @@ export default function Dashboard() {
                   <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
                       <p className="text-xs text-muted-foreground">Total</p>
-                      <p className="text-xl font-semibold">${categoryData.reduce((sum, cat) => sum + cat.value, 0).toLocaleString()}</p>
+                      <p className="text-xl font-semibold">₹{categoryData.reduce((sum, cat) => sum + cat.value, 0).toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -629,13 +641,13 @@ function BankBalancesDialog({ open, onOpenChange, bankBalances }: { open: boolea
                 <div key={bankData.bank.id} className="border border-border rounded-lg p-4">
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold">{bankData.bank.name}</h3>
-                    <span className="font-bold">${bankData.totalBalance.toLocaleString()}</span>
+                    <span className="font-bold">₹{bankData.totalBalance.toLocaleString()}</span>
                   </div>
                   <div className="text-sm text-muted-foreground space-y-1">
                     {bankData.accounts.map((account: any) => (
                       <div key={account.id} className="flex justify-between">
                         <span>{account.type} (...{account.accountNumber.slice(-4)})</span>
-                        <span>${Number(account.balance).toLocaleString()}</span>
+                        <span>₹{Number(account.balance).toLocaleString()}</span>
                       </div>
                     ))}
                   </div>

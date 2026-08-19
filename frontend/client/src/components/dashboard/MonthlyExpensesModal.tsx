@@ -138,7 +138,7 @@ export function MonthlyExpensesModal({
           <div>
             <DialogTitle>Monthly Expenses Breakdown</DialogTitle>
             <p className="text-sm text-muted-foreground">
-              Total: ${totalMonthlyExpenses.toFixed(2)} • {expensesByDate.length} days with expenses
+              Total: ₹{totalMonthlyExpenses.toFixed(2)} • {expensesByDate.length} days with expenses
             </p>
           </div>
           <div className="flex gap-2">
@@ -162,15 +162,15 @@ export function MonthlyExpensesModal({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-card p-4 rounded-xl border border-border/50">
             <h3 className="text-sm font-medium text-muted-foreground mb-1">Online Expenses</h3>
-            <p className="text-2xl font-bold" style={{ color: navyBlue }}>${onlineTotal.toFixed(2)}</p>
+            <p className="text-2xl font-bold" style={{ color: navyBlue }}>₹{onlineTotal.toFixed(2)}</p>
           </div>
           <div className="bg-card p-4 rounded-xl border border-border/50">
             <h3 className="text-sm font-medium text-muted-foreground mb-1">Cash Expenses</h3>
-            <p className="text-2xl font-bold" style={{ color: navyBlue }}>${cashTotal.toFixed(2)}</p>
+            <p className="text-2xl font-bold" style={{ color: navyBlue }}>₹{cashTotal.toFixed(2)}</p>
           </div>
           <div className="bg-card p-4 rounded-xl border border-border/50">
             <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Monthly</h3>
-            <p className="text-2xl font-bold" style={{ color: navyBlue }}>${totalMonthlyExpenses.toFixed(2)}</p>
+            <p className="text-2xl font-bold" style={{ color: navyBlue }}>₹{totalMonthlyExpenses.toFixed(2)}</p>
           </div>
         </div>
         
@@ -190,13 +190,13 @@ export function MonthlyExpensesModal({
                 axisLine={false} 
                 tickLine={false} 
                 tick={{fill: '#9ca3af', fontSize: 12}} 
-                tickFormatter={(value) => `$${value}`} 
+                tickFormatter={(value) => `₹${value}`} 
                 domain={[0, 'auto']}
               />
               <Tooltip 
                 contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
                 itemStyle={{ color: 'hsl(var(--foreground))' }}
-                formatter={(value) => [`$${value}`, 'Amount']}
+                formatter={(value) => [`₹${value}`, 'Amount']}
               />
               <Bar 
                 dataKey="value" 
@@ -238,7 +238,7 @@ export function MonthlyExpensesModal({
                         </div>
                         <div className="text-right">
                           <p className="font-semibold" style={{ color: navyBlueDark }}>
-                            -${Number(expense.amount).toFixed(2)}
+                            -₹{Number(expense.amount).toFixed(2)}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {format(new Date(expense.date), 'MMM d, h:mm a')}
@@ -250,7 +250,7 @@ export function MonthlyExpensesModal({
                   <div className="pt-2 mt-2 border-t border-border/50 flex justify-between font-semibold" style={{ color: navyBlue }}>
                     <span>Online Total:</span>
                     <span style={{ color: navyBlueDark }}>
-                      -${onlineTotal.toFixed(2)}
+                      -₹{onlineTotal.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -282,7 +282,7 @@ export function MonthlyExpensesModal({
                         </div>
                         <div className="text-right">
                           <p className="font-semibold" style={{ color: navyBlueDark }}>
-                            -${Number(expense.amount).toFixed(2)}
+                            -₹{Number(expense.amount).toFixed(2)}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {format(new Date(expense.date), 'MMM d, h:mm a')}
@@ -294,7 +294,7 @@ export function MonthlyExpensesModal({
                   <div className="pt-2 mt-2 border-t border-border/50 flex justify-between font-semibold" style={{ color: navyBlue }}>
                     <span>Cash Total:</span>
                     <span style={{ color: navyBlueDark }}>
-                      -${cashTotal.toFixed(2)}
+                      -₹{cashTotal.toFixed(2)}
                     </span>
                   </div>
                 </div>

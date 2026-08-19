@@ -64,8 +64,8 @@ export function TransactionList({ transactions, limit }: TransactionListProps) {
             </div>
 
             <div className="text-right">
-              <span className={`block font-display font-bold text-lg ${isCredit ? 'text-green-600' : 'text-foreground'}`}>
-                {!isCashExpense && (tx as Transaction).type === "credit" ? "+" : "-"}${Number(tx.amount).toLocaleString()}
+              <span  className={`block font-display font-bold text-lg ${    isCredit ? "text-green-600" : "text-foreground"  }`}>
+                {!isCashExpense && (tx as Transaction).type === "credit" ? "+" : "-"}₹  {Number(tx.amount).toLocaleString("en-IN", {    minimumFractionDigits: 0,    maximumFractionDigits: 2,  })}
               </span>
               <span className="text-xs text-muted-foreground capitalize bg-secondary px-2 py-0.5 rounded-full inline-block mt-1">
                 {transactionType}

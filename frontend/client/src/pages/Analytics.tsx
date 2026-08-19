@@ -85,17 +85,26 @@ export default function Analytics() {
     const combined: TransactionWithCash[] = [
       ...allTransactions.map(t => ({
         ...t,
-        date: new Date(t.date)
+        // Convert backend transaction types:
+        // EXPENSE -> debit
+        // INCOME  -> credit
+        type:
+          String(t.type).toUpperCase() === "EXPENSE"
+            ? "debit"
+            : String(t.type).toUpperCase() === "INCOME"
+            ? "credit"
+            : String(t.type).toLowerCase(),
+        date: new Date(t.date),
       })),
       ...cashExpenses.map(expense => ({
         id: expense.id,
         amount: expense.amount,
-        type: 'debit',
+        type: "debit",
         category: expense.category,
         description: expense.description || expense.category,
         date: new Date(expense.date),
-        isOffline: true
-      }))
+        isOffline: true,
+      })),
     ];
     
     return combined;
@@ -295,7 +304,7 @@ export default function Analytics() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard 
             title="Total Spent" 
-            value={`$${totalSpent.toFixed(2)}`} 
+            value={`₹${totalSpent.toFixed(2)}`} 
             trend={timeFilter === 'day' ? "Today" : timeFilter === 'month' ? "This Month" : "This Year"} 
             trendUp={false}
             icon={TrendingDown}
@@ -303,7 +312,7 @@ export default function Analytics() {
           />
           <StatCard 
             title="Total Income" 
-            value={`$${totalIncome.toFixed(2)}`} 
+            value={`₹${totalIncome.toFixed(2)}`} 
             trend={timeFilter === 'day' ? "Today" : timeFilter === 'month' ? "This Month" : "This Year"} 
             trendUp={true}
             icon={TrendingUp}
@@ -311,7 +320,7 @@ export default function Analytics() {
           />
           <StatCard 
             title="Net Balance" 
-            value={`$${(totalIncome - totalSpent).toFixed(2)}`} 
+            value={`₹${(totalIncome - totalSpent).toFixed(2)}`} 
             trend={timeFilter === 'day' ? "Today" : timeFilter === 'month' ? "This Month" : "This Year"} 
             trendUp={(totalIncome - totalSpent) >= 0}
             icon={(totalIncome - totalSpent) >= 0 ? TrendingUp : TrendingDown}
@@ -319,7 +328,7 @@ export default function Analytics() {
           />
           <StatCard 
             title="Avg. Daily Expense" 
-            value={`$${filteredTransactions.length > 0 ? (totalSpent / (timeFilter === 'day' ? 1 : timeFilter === 'month' ? new Date().getDate() : 365)).toFixed(2) : '0.00'}`} 
+            value={`₹${filteredTransactions.length > 0 ? (totalSpent / (timeFilter === 'day' ? 1 : timeFilter === 'month' ? new Date().getDate() : 365)).toFixed(2) : '0.00'}`} 
             trend={timeFilter === 'day' ? "Today" : timeFilter === 'month' ? "This Month" : "This Year"} 
             trendUp={false}
             icon={DollarSign}

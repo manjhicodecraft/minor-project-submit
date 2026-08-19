@@ -63,7 +63,7 @@ export function CardDisplay({ cards, onDeleteCard, onCardClick }: CardDisplayPro
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Balance:</span>
-                <span className="font-semibold">${parseFloat(card.initialBalance).toLocaleString()}</span>
+                <span className="font-semibold">₹{parseFloat(card.initialBalance).toLocaleString()}</span>
               </div>
             </div>
             <div className="text-xs text-muted-foreground mt-4">
